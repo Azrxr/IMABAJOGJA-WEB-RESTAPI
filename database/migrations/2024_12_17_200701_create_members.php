@@ -12,18 +12,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('members', function (Blueprint $table) {
-            $table->id();
+            $table->id()->unique();
             $table->unsignedBigInteger('user_id')->unique();
+            $table->string('no_member')->unique()->nullable();
+
             $table->string('fullname');
             $table->integer('phone_number');
+
             $table->string('province')->nullable();
             $table->string('regency')->nullable();
-            $table->string('district')->nullable();
-            $table->string('full_address')->nullable();
+            $table->string('address')->nullable();
+
+            $table->string('agama');
+            $table->integer('nisn')->nullable()->comment('opsional');
+            $table->string('tempat');
+            $table->date('tanggal_lahir');
+            $table->enum('gender', ['male', 'female']);
+            $table->integer('kode_pos')->nullable();
+
+            $table->enum('member_type', ['camaba', 'pengurus', 'anggota', 'demissioner', 'istimewa'])->default('camaba');
             $table->string('profile_img')->nullable()->comment('path to image');
-            $table->enum('member_status', ['aktif', 'nonaktif', 'pending'])->default('pending');
-            $table->enum('approval', ['disetujui', 'ditolak', 'pending'])->default('pending');
-            $table->enum('member_type', ['new_member', 'camaba', 'pengurus', 'anggota', 'demissioner'])->default('new_member');
+
+            $table->string('scholl_origin');
+            $table->integer('tahun_lulus');
+
+            $table->string('kampus')->nullable();
+            $table->string('fakultas')->nullable();
+            $table->string('prodi')->nullable();
+            
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
