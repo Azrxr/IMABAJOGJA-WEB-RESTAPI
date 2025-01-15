@@ -51,7 +51,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
         $member_data = Member::create([
-            'id' => 1,
             'user_id' => $member->id,
             'fullname' => 'Member User',
             'phone_number' => 1234567890,
@@ -73,13 +72,9 @@ class DatabaseSeeder extends Seeder
             'prodi' => 'Informatika',
         ]);
 
-        $home = HomePhoto::create([
-            'photo_title' => 'Home Photo',
-            'photo_img' => 'path/to/photo.jpg',
-        ]);
-        Document::create([
+        
+        $doc = Document::create([
             'member_id' => $member_data->id,
-            'home_photo_id' => $home->id,
             'ijazah' => 'path/to/ijazah.jpg',
             'ktp' => 'path/to/ktp.jpg',
             'kk' => 'path/to/kk.jpg',
@@ -104,6 +99,12 @@ class DatabaseSeeder extends Seeder
             'kartu_kip' => 'path/to/kartu_kip.jpg',
             'kartu_pkh' => 'path/to/kartu_pkh.jpg',
             'kartu_kks' => 'path/to/kartu_kks.jpg',
+        ]);
+
+        HomePhoto::create([
+            'document_id' => $doc->id,
+            'photo_title' => 'Home Photo',
+            'photo_img' => 'path/to/photo.jpg',
         ]);
         
         $kampus = Campuse::create([

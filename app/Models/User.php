@@ -29,6 +29,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'ban_reason'
     ];
 
+    public function member()
+    {
+        return $this->hasOne(Member::class);
+    }
+
+    public function admin()
+    {
+        return $this->hasOne(Admin::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

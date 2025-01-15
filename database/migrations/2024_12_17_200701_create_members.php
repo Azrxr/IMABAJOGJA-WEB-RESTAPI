@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id()->unique();
             $table->unsignedBigInteger('user_id')->unique();
             $table->string('no_member')->unique()->nullable();
-
+            $table->integer('generation')->nullable();
             $table->string('fullname');
-            $table->integer('phone_number');
+            $table->string('phone_number');
 
             $table->string('province')->nullable();
             $table->string('regency')->nullable();

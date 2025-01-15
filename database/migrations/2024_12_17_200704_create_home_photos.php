@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('home_photos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('document_id');
             $table->string('photo_title')->nullable()->comment('judul bagian rumah');
             $table->string('photo_img')->comment('path to img');
+            $table->foreign('document_id')->references('id')->on('documents');
             $table->timestamps();
         });
     }

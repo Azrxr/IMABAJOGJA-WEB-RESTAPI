@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id()->unique();
             $table->unsignedBigInteger('member_id')->unique();
-
             $table->string('ijazah')->nullable()->comment('path to IJAZAH');
             $table->string('ktp')->nullable()->comment('path to KTP document');
             $table->string('kk')->nullable()->comment('path to KK document');
@@ -43,11 +42,8 @@ return new class extends Migration
             $table->string('kartu_kip')->nullable()->comment('path to KIP Card (if available)');
             $table->string('kartu_pkh')->nullable()->comment('path to PKH Card (if available)');
             $table->string('kartu_kks')->nullable()->comment('path to KKS Card (if available)');
-            //foto rumah
-            $table->unsignedBigInteger('home_photo_id')->nullable()->comment('depan, dalam, belakang');
 
             $table->foreign('member_id')->references('id')->on('members');
-            $table->foreign('home_photo_id')->references('id')->on('home_photos');
             $table->timestamps();
         });
     }
