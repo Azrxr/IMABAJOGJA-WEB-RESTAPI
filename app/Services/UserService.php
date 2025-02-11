@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -109,11 +110,36 @@ class UserService
         ]);
 
         // Send email verification
-        $this->sendVerificationEmail($user);
+        //$this->sendVerificationEmail($user);
 
         return [
             'status' => true,
-            'message' => 'Registration successful. Please check your email to verify your account.',
+            'message' => 'Registration successful.',
+            'user' => $user,
+        ];
+    }
+
+    public function register_admin(array $data)
+    {
+        // Create the user
+        $user = User::create([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'email_verified_at' => null,
+            'role' => 'admin',  // Or set a default role
+        ]);
+
+        $admin = Admin::create([
+            'user_id' => $user->id,
+            'fullname' => $data['fullname'],
+            'phone_number' => $data['phone_number'],
+        ]);
+
+        return [
+            'status' => true,
+            'message' => 'Registration successful.',
+            'user' => $user, $admin
         ];
     }
 

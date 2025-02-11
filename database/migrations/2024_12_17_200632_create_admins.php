@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->unique();
             $table->string('fullname');
-            $table->integer('phone_number');
-            $table->string('province');
-            $table->string('regency');
-            $table->string('district');
-            $table->text('full_address');
+            $table->string('phone_number');
+            $table->string('province')->nullable();
+            $table->string('regency')->nullable();
+            $table->string('district')->nullable();
+            $table->text('full_address')->nullable();
             $table->string('profile_img')->nullable()->comment('path to image');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

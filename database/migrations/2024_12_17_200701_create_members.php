@@ -33,8 +33,8 @@ return new class extends Migration
             $table->enum('member_type', ['camaba', 'pengurus', 'anggota', 'demissioner', 'istimewa'])->default('camaba');
             $table->string('profile_img')->nullable()->comment('path to image');
 
-            $table->string('scholl_origin');
-            $table->integer('tahun_lulus');
+            $table->string('scholl_origin')->nullable();
+            $table->integer('tahun_lulus')->nullable();
 
             $table->string('kampus')->nullable();
             $table->string('fakultas')->nullable();

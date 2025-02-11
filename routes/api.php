@@ -31,6 +31,7 @@ Route::middleware(['api'])->group(function () {
 
     Route::get('/register', [RegisterController::class, 'registerPage'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/admin/register', [RegisterController::class, 'Register_admin'])->name('register_admin');
     Route::get('/verify-email/{token}', [RegisterController::class, 'verifyEmail'])->name('verify-email');
     Route::post('/resend-verification-email', [RegisterController::class, 'resendVerificationEmail'])->name('resend-verification-email');
 
@@ -52,6 +53,7 @@ Route::middleware(['api'])->group(function () {
 //admin
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/profile_admin', [AdminController::class, 'profile_admin'])->name('profile_admin');
+        
     });
 });
 

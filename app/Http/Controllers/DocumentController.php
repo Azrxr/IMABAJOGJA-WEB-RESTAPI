@@ -35,6 +35,7 @@ class DocumentController extends Controller
         }
     }
 
+
     public function uploadDocument(Request $request)
     {
         $user = User::with('member')->findOrFail(Auth::id());
@@ -137,31 +138,30 @@ class DocumentController extends Controller
     }
 
     public function deleteHomePhoto(Request $request, $id)
-{
-    // Cari foto berdasarkan ID
-    $homePhoto = HomePhoto::find($id);
+    {
+        // Cari foto berdasarkan ID
+        $homePhoto = HomePhoto::find($id);
 
-    if (!$homePhoto) {
-        // Jika foto tidak ditemukan
+        if (!$homePhoto) {
+            // Jika foto tidak ditemukan
+            return ApiResponse::jsonResponse(
+                true,
+                'Photo not found!',
+                null
+            );
+        }
+
+        // Hapus file foto dari storage
+        Storage::disk('public')->delete($homePhoto->photo_img);
+
+        // Hapus data foto dari database
+        $homePhoto->delete();
+
+        // Respon jika berhasil
         return ApiResponse::jsonResponse(
-            true,
-            'Photo not found!',
+            false,
+            'Photo deleted successfully!',
             null
         );
     }
-
-    // Hapus file foto dari storage
-    Storage::disk('public')->delete($homePhoto->photo_img);
-
-    // Hapus data foto dari database
-    $homePhoto->delete();
-
-    // Respon jika berhasil
-    return ApiResponse::jsonResponse(
-        false,
-        'Photo deleted successfully!',
-        null
-    );
-}
-
 }

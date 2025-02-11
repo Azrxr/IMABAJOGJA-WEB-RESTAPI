@@ -42,9 +42,42 @@ class RegisterController extends Controller
         ]);
 
         // Pass the validated data to the UserService
-        $registerResult = $this->userService->register($request->only('name', 'email', 'username', 'password'));
+        $registerResult = $this->userService->register($request->only('email', 'username', 'password'));
 
         if ($request->wantsJson()) {
+            if ($registerResult['status']) {
+                return response()->json([
+                    'status' => true,
+                    'message' => $registerResult['message'],
+                    'user' => $registerResult['user']
+                ], 201);  // HTTP status 201 Created
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Registration failed. Please try again.'
+            ], 400);  // HTTP status 400 Bad Request
+        }
+         // If the request is from a browser (wants HTML view)
+        if ($registerResult['status']) {
+            return redirect()->route('login')->with('status', $registerResult['message']);
+        }
+
+        return back()->withErrors(['error' => 'Registration failed. Please try again.']);
+    }
+
+    public function Register_admin(Request $req){
+        $req->validate([
+            'username' => 'required|string|max:255|unique:users,username',
+            'fullname' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|confirmed|min:8',
+        ]);
+
+        $registerResult = $this->userService->register_admin($req->only('email', 'username', 'password', 'fullname', 'phone_number'));
+
+        if ($req->wantsJson()) {
             if ($registerResult['status']) {
                 return response()->json([
                     'status' => true,
