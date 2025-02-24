@@ -9,11 +9,16 @@ class ProgramStudy extends Model
     protected $table = 'program_studies';
 
     protected $fillable = [
-        'campuse_id', 'program_study_name'
+        'univerty_id', 'faculty_id', 'name', 'jenjang' 
     ];
 
-    public function campuse()
+    public function university()
     {
-        return $this->belongsTo(Campuse::class);
+        return $this->belongsTo(university::class);
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
     }
 }
