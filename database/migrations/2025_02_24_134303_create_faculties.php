@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::create('campuses', function (Blueprint $table) {
-            $table->id()->unique();
-            $table->unsignedBigInteger('member_id');
-            $table->string('campuse_name');
-            $table->enum('beasiswa', ['sangat_butuh', 'netral', 'berbayar']);
-            $table->foreign('member_id')->references('id')->on('members');
+        Schema::create('faculties', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('university_id');
+            $table->string('name');
+            $table->foreign('university_id')->references('id')->on('universities');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('faculties');
     }
 };

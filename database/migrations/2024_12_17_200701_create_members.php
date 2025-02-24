@@ -12,18 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('members', function (Blueprint $table) {
-            $table->id()->unique();
+            $table->id();
             $table->unsignedBigInteger('user_id')->unique();
             $table->string('no_member')->unique()->nullable();
-            $table->integer('generation')->nullable();
+            $table->string('angkatan')->nullable();
             $table->string('fullname');
-            $table->string('phone_number');
+            $table->integer('phone_number');
 
-            $table->string('province')->nullable();
-            $table->string('regency')->nullable();
-            $table->string('address')->nullable();
+            $table->unsignedBigInteger('province_id')->nullable();
+            $table->unsignedBigInteger('regency_id')->nullable();
+            $table->unsignedBigInteger('district_id')->nullable();
+            $table->text('full_address')->nullable();
 
-            $table->string('agama');
+            $table->enum('agama', ['islam', 'kristen', 'katolik', 'hindu', 'budha', 'konghucu', 'lainnya'])->nullable();
             $table->integer('nisn')->nullable()->comment('opsional');
             $table->string('tempat');
             $table->date('tanggal_lahir');
@@ -31,16 +32,16 @@ return new class extends Migration
             $table->integer('kode_pos')->nullable();
 
             $table->enum('member_type', ['camaba', 'pengurus', 'anggota', 'demissioner', 'istimewa'])->default('camaba');
-            $table->string('profile_img')->nullable()->comment('path to image');
+            $table->string('profile_img_path')->nullable()->comment('path to image');
 
             $table->string('scholl_origin')->nullable();
             $table->integer('tahun_lulus')->nullable();
+            $table->boolean('is_studyng')->comment('TRUE jika sudah kuliah, FALSE jika masih memilih');
 
-            $table->string('kampus')->nullable();
-            $table->string('fakultas')->nullable();
-            $table->string('prodi')->nullable();
-            
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('province_id')->references('id')->on('provincies');
+            $table->foreign('regency_id')->references('id')->on('regencies');
+            $table->foreign('district_id')->references('id')->on('districts');
             $table->timestamps();
         });
     }
