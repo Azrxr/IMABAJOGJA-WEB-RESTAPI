@@ -16,9 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->unique();
             $table->string('fullname');
             $table->string('phone_number');
-            $table->string('province')->nullable();
-            $table->string('regency')->nullable();
-            $table->string('district')->nullable();
+            $table->foreignId('provincy_id')->nullable()->constrained('provincies')->onDelete('set null');
+            $table->foreignId('regency_id')->nullable()->constrained('regencies')->onDelete('set null');
+            $table->foreignId('district_id')->nullable()->constrained('districts')->onDelete('set null');
             $table->text('full_address')->nullable();
             $table->string('profile_img')->nullable()->comment('path to image');
             $table->foreign('user_id')->references('id')->on('users');

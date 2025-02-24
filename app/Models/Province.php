@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Province extends Model
 {
     use HasFactory;
+    protected $table = 'provincies';
     protected $fillable = ['id','name'];
     
     public function regency()

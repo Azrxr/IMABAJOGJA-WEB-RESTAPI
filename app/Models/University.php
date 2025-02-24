@@ -17,6 +17,6 @@ class University extends Model
 
     public function programStudy()
     {
-        return $this->belongsTo(ProgramStudy::class);
+        return $this->hasMany(ProgramStudy::class);
     }
 }

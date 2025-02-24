@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('regency_id');
             $table->string('name');
-            $table->foreign('regency_id')->references('id')->on('regencies');
+            $table->foreign('regency_id')->references('id')->on('regencies')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -11,9 +11,9 @@ class Admin extends Model
         'user_id',
         'fullname',
         'phone_number',
-        'province',
-        'regency',
-        'district',
+        'provincy_id',
+        'regency_id',
+        'district_id',
         'full_address',
         'profile_img',
     ];
@@ -21,5 +21,18 @@ class Admin extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+    public function regency()
+    {
+        return $this->belongsTo(Regency::class);
+    }
+    public function district()
+    {
+        return $this->belongsTo(District::class);
     }
 }

@@ -39,9 +39,9 @@ return new class extends Migration
             $table->boolean('is_studyng')->comment('TRUE jika sudah kuliah, FALSE jika masih memilih');
 
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('province_id')->references('id')->on('provincies');
-            $table->foreign('regency_id')->references('id')->on('regencies');
-            $table->foreign('district_id')->references('id')->on('districts');
+            $table->foreign('province_id')->references('id')->on('provincies')->onDelete('set null');
+            $table->foreign('regency_id')->references('id')->on('regencies')->onDelete('set null');
+            $table->foreign('district_id')->references('id')->on('districts')->onDelete('set null');
             $table->timestamps();
         });
     }

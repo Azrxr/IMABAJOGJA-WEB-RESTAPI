@@ -5,14 +5,15 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\Campuse;
 use App\Models\Study;
 use App\Models\Member;
+use App\Models\Campuse;
 use App\Models\Document;
 use App\Models\HomePhoto;
 use App\Models\ProgramStudy;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\InsertWilayahSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        // $this->call(InsertWilayahSeeder::class);
 
         $admin = User::create([
             'username' => 'admin',
