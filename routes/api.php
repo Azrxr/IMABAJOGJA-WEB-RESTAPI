@@ -26,15 +26,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['api'])->group(function () {
     // Autentikasi API menggunakan token
-    Route::post('/login', [LoginController::class, 'loginUser']);
-    Route::get('/logout', [LoginController::class, 'logout']);
-
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
     Route::get('/register', [RegisterController::class, 'registerPage'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
     Route::post('/admin/register', [RegisterController::class, 'Register_admin'])->name('register_admin');
     Route::get('/verify-email/{token}', [RegisterController::class, 'verifyEmail'])->name('verify-email');
     Route::post('/resend-verification-email', [RegisterController::class, 'resendVerificationEmail'])->name('resend-verification-email');
-
+    Route::get('/logout', [LoginController::class, 'logout']);
     // // Rute API terproteksi (harus terautentikasi)
     // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     //     return $request->user();

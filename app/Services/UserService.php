@@ -139,7 +139,8 @@ class UserService
         return [
             'status' => true,
             'message' => 'Registration successful.',
-            'user' => $user, $admin
+            'user' => $user, 
+            'admin' => $admin
         ];
     }
 

@@ -47,18 +47,23 @@ class RegisterController extends Controller
         if ($request->wantsJson()) {
             if ($registerResult['status']) {
                 return response()->json([
-                    'status' => true,
+                    'error' => false,
                     'message' => $registerResult['message'],
-                    'user' => $registerResult['user']
+                    'registerResult' => [
+                        'userID' => (string) ($registerResult['user']['id'] ?? ''),
+                        'username' => $registerResult['user']['username'] ?? '',
+                        'email' => $registerResult['user']['email'] ?? '',
+                        'role' => $registerResult['user']['role'] ?? '',
+                    ]
                 ], 201);  // HTTP status 201 Created
             }
 
             return response()->json([
-                'status' => false,
+                'error' => true,
                 'message' => 'Registration failed. Please try again.'
             ], 400);  // HTTP status 400 Bad Request
         }
-         // If the request is from a browser (wants HTML view)
+        // If the request is from a browser (wants HTML view)
         if ($registerResult['status']) {
             return redirect()->route('login')->with('status', $registerResult['message']);
         }
@@ -66,7 +71,8 @@ class RegisterController extends Controller
         return back()->withErrors(['error' => 'Registration failed. Please try again.']);
     }
 
-    public function Register_admin(Request $req){
+    public function Register_admin(Request $req)
+    {
         $req->validate([
             'username' => 'required|string|max:255|unique:users,username',
             'fullname' => 'required|string|max:255',
@@ -80,18 +86,27 @@ class RegisterController extends Controller
         if ($req->wantsJson()) {
             if ($registerResult['status']) {
                 return response()->json([
-                    'status' => true,
+                    'error' => false,
                     'message' => $registerResult['message'],
-                    'user' => $registerResult['user']
+                    'registerResult' => [
+                        'userID' => (string) ($registerResult['user']['id'] ?? ''),
+                        'username' => $registerResult['user']['username'] ?? '',
+                        'fullname' => $registerResult['admin']['fullname'] ?? '',
+                        'phone_number' => $registerResult['admin']['phone_number'] ?? '',
+                        'email' => $registerResult['user']['email'] ?? '',
+                        'role' => $registerResult['user']['role'] ?? '',
+                        
+                    ]
+
                 ], 201);  // HTTP status 201 Created
             }
 
             return response()->json([
-                'status' => false,
+                'error' => true,
                 'message' => 'Registration failed. Please try again.'
             ], 400);  // HTTP status 400 Bad Request
         }
-         // If the request is from a browser (wants HTML view)
+        // If the request is from a browser (wants HTML view)
         if ($registerResult['status']) {
             return redirect()->route('login')->with('status', $registerResult['message']);
         }

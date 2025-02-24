@@ -24,7 +24,7 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function login()
+    public function loginPage()
     {
         return response()
             ->view('auth.login')
@@ -39,7 +39,7 @@ class LoginController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function loginUser(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'login' => 'required|string',
