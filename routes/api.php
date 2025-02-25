@@ -8,6 +8,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\auth\LoginController;
 use App\Http\Controllers\auth\RegisterController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,9 +51,12 @@ Route::middleware(['api'])->group(function () {
         Route::delete('/member/deleteHomePhoto/{id}', [DocumentController::class, 'deleteHomePhoto'])->name('deleteHomePhoto');
     });
 //admin
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('admin')->group(function () {
         Route::get('/admin/profile_admin', [AdminController::class, 'profile_admin'])->name('profile_admin');
-        
+
+        // organozationProfile
+        Route::post('/imaba/profileUpdate', [HomeController::class, 'editProfile'])->name('editProfile');
+        Route::post('/imaba/addFile', [HomeController::class, 'addFile'])->name('addFile');
     });
 });
 

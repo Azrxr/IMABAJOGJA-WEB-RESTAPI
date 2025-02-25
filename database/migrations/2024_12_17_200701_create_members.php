@@ -36,7 +36,7 @@ return new class extends Migration
 
             $table->string('scholl_origin')->nullable();
             $table->integer('tahun_lulus')->nullable();
-            $table->boolean('is_studyng')->comment('TRUE jika sudah kuliah, FALSE jika masih memilih');
+            $table->boolean('is_studyng')->comment('TRUE jika sudah kuliah, FALSE jika masih memilih')->default(false);
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('province_id')->references('id')->on('provincies')->onDelete('set null');
