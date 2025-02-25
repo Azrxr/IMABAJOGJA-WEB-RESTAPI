@@ -64,3 +64,32 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Documentation 
+/**
+ * API Routes for Organization Profile Management
+ *
+ * POST /imaba/profileUpdate
+ * - Updates the profile of the organization.
+ * - Controller: HomeController
+ * - Method: editProfile
+ * - Name: editProfile
+ *
+ * POST /imaba/addFile
+ * - Adds a new file to the organization's profile.
+ * - Controller: HomeController
+ * - Method: addFile
+ * - Name: addFile
+ *
+ * POST /imaba/updateFile/{id}
+ * - Updates an existing file in the organization's profile.
+ * - Controller: HomeController
+ * - Method: updateFile
+ * - Name: updateFile
+ *
+ * DELETE /imaba/deleteFile/{id}
+ * - Deletes a file from the organization's profile.
+ * - Controller: HomeController
+ * - Method: deleteFile
+ * - Name: deleteFile
+ */
