@@ -15,6 +15,11 @@ class OrganizationFile extends Model
         'description',
         'file_path',
     ];
+    protected $appends = ['file_url'];
+    public function getFileUrlAttribute()
+    {
+        return $this->file_path ? url('storage/' . $this->file_path) : null;
+    }
 
     public function organizationProfile(){
         return $this->belongsTo(OrganizationProfile::class, 'organization_profile_id');

@@ -20,7 +20,7 @@ class OrganizationProfile extends Model
         'address',
     ];
 
-    public function file(){
-        return $this->hasMany(OrganizationFile::class, 'fileable');
+    public function files(){
+        return $this->hasMany(OrganizationFile::class, 'organization_profile_id');
     }
 }

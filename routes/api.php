@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['api'])->group(function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     // Autentikasi API menggunakan token
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
@@ -39,7 +40,7 @@ Route::middleware(['api'])->group(function () {
     // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     //     return $request->user();
     // });
-//member
+    //member
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/member/profile', [MemberController::class, 'profile'])->name('profile');
         Route::post('/member/profileUpdate', [MemberController::class, 'profileUpdate'])->name('profileUpdate');
@@ -50,13 +51,14 @@ Route::middleware(['api'])->group(function () {
         Route::post('/member/uploadHomePhoto', [DocumentController::class, 'uploadHomePhoto'])->name('uploadHomePhoto');
         Route::delete('/member/deleteHomePhoto/{id}', [DocumentController::class, 'deleteHomePhoto'])->name('deleteHomePhoto');
     });
-//admin
-    Route::middleware('admin')->group(function () {
+    //admin
+    Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/profile_admin', [AdminController::class, 'profile_admin'])->name('profile_admin');
 
         // organozationProfile
         Route::post('/imaba/profileUpdate', [HomeController::class, 'editProfile'])->name('editProfile');
         Route::post('/imaba/addFile', [HomeController::class, 'addFile'])->name('addFile');
+        Route::post('/imaba/updateFile/{id}', [HomeController::class, 'updateFile'])->name('updateFile');
+        Route::delete('/imaba/deleteFile/{id}', [HomeController::class, 'deleteFile'])->name('deleteFile');
     });
 });
-

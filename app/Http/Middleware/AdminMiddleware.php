@@ -16,9 +16,12 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $user = Auth::user(); // Ambil user yang sedang login
+        
+        if (!$user || $user->role !== 'admin') { // Pastikan role benar
+            return response()->json(['message' => 'Unauthorized', 'note' => 'Only admin can access this route'], 403);
         }
+        
         return $next($request);
     }
 }
