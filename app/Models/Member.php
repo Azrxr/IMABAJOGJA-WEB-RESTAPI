@@ -29,4 +29,16 @@ class Member extends Model
     {
         return $this->belongsTo(District::class);
     }
+    public function studyPlans()
+    {
+        return $this->hasMany(StudyPlane::class);
+    }
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+    public function studyMembers()
+    {
+        return $this->hasMany(StudyMember::class);
+    }
 }

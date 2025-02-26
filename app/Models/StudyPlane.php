@@ -9,7 +9,7 @@ class StudyPlane extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'id','university_id','program_study_id','faculty_id','status'
+        'id','university_id','program_study_id','member_id','status'
     ];
 
     public function university()
@@ -20,8 +20,8 @@ class StudyPlane extends Model
     {
         return $this->belongsTo(ProgramStudy::class);
     }
-    public function faculty()
+    public function member()
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Member::class);
     }
 }

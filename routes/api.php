@@ -3,12 +3,13 @@
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\auth\LoginController;
+use App\Http\Controllers\StudyPlaneController;
 use App\Http\Controllers\auth\RegisterController;
-use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,12 @@ Route::middleware(['api'])->group(function () {
         Route::post('/member/uploadDocument', [DocumentController::class, 'uploadDocument'])->name('uploadDocument');
         Route::post('/member/uploadHomePhoto', [DocumentController::class, 'uploadHomePhoto'])->name('uploadHomePhoto');
         Route::delete('/member/deleteHomePhoto/{id}', [DocumentController::class, 'deleteHomePhoto'])->name('deleteHomePhoto');
+
+        //studyplane
+         Route::get('/member/studyPlane', [StudyPlaneController::class, 'index'])->name('studyplane');
+        Route::post('/member/studyPlaneAdd', [StudyPlaneController::class, 'studyPlaneAdd'])->name('studyPlaneAdd');
+        Route::post('/member/studyPlaneUpdate/{id}', [StudyPlaneController::class, 'studyPlaneUpdate'])->name('studyPlaneUpdate');
+        Route::delete('/member/studyPlaneDelete/{id}', [StudyPlaneController::class, 'studyPlaneDelete'])->name('studyPlaneDelete');
     });
     //admin
     Route::middleware('auth:sanctum')->group(function () {
@@ -60,5 +67,11 @@ Route::middleware(['api'])->group(function () {
         Route::post('/imaba/addFile', [HomeController::class, 'addFile'])->name('addFile');
         Route::post('/imaba/updateFile/{id}', [HomeController::class, 'updateFile'])->name('updateFile');
         Route::delete('/imaba/deleteFile/{id}', [HomeController::class, 'deleteFile'])->name('deleteFile');
+
+        //studyplane
+        Route::get('/admin/getAllStudyPlans', [StudyPlaneController::class, 'getAllStudyPlans'])->name('getAllStudyPlans');
+        Route::post('/admin/studylaneAdd', [StudyPlaneController::class, 'adminStudyPlaneAdd']);
+        Route::post('/admin/studyplaneUpdate/{id}', [StudyPlaneController::class, 'adminStudyPlaneUpdate']);
+        Route::delete('/admin/studyplaneDelete/{id}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
     });
 });
