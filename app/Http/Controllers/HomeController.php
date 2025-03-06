@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Campuse;
+use App\Models\Province;
+use App\Models\University;
 use Illuminate\Support\Str;
+use App\Models\ProgramStudy;
 use Illuminate\Http\Request;
 use App\Models\OrganizationFile;
 use App\Models\OrganizationProfile;
@@ -12,6 +16,47 @@ use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
+
+    public function wilayah()
+    {
+        $provinces = Province::select('id', 'name')->with([
+            'regency:id,province_id,name',
+            'regency.district:id,regency_id,name'
+        ])->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'List of all locations',
+            'data' => $provinces
+        ]);
+    }
+
+    public function universities()
+    {
+        $universities = University::select('id', 'name')->with([
+            'faculty:id,university_id,name',
+            'faculty.programStudy:id,faculty_id,name'
+        ])->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'List of all campuses',
+            'data' => $universities
+        ]);
+    }
+
+    public function programStudy()
+    {
+        $programStudy = University::select('id', 'name')->with([
+            'programStudy'
+        ])->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'List of all study programs',
+            'data' => $programStudy
+        ]);
+    }
     //
     public function index(Request $request)
     {

@@ -28,6 +28,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['api'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/wilayah', [HomeController::class, 'wilayah'])->name('wilayah');
+    Route::get('/universities', [HomeController::class, 'universities'])->name('universities');
+    Route::get('/programStudy', [HomeController::class, 'programStudy'])->name('programStudy');
     // Autentikasi API menggunakan token
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/login', [LoginController::class, 'loginPage'])->name('login');
