@@ -13,6 +13,12 @@ class Member extends Model
         'profile_img_path', 'scholl_origin', 'tahun_lulus', 'is_studyng'
     ];
 
+    protected $appends = ['profile_img_url'];   
+    public function getProfileImgUrlAttribute()
+    {
+        return $this->profile_img_path ? url('storage/' . $this->profile_img_path) : null;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

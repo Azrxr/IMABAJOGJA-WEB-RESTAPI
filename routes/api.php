@@ -53,7 +53,7 @@ Route::middleware(['api'])->group(function () {
         Route::delete('/member/deleteHomePhoto/{id}', [DocumentController::class, 'deleteHomePhoto'])->name('deleteHomePhoto');
 
         //studyplane
-         Route::get('/member/studyPlane', [StudyPlaneController::class, 'index'])->name('studyplane');
+        Route::get('/member/studyPlane', [StudyPlaneController::class, 'index'])->name('studyplane');
         Route::post('/member/studyPlaneAdd', [StudyPlaneController::class, 'studyPlaneAdd'])->name('studyPlaneAdd');
         Route::post('/member/studyPlaneUpdate/{id}', [StudyPlaneController::class, 'studyPlaneUpdate'])->name('studyPlaneUpdate');
         Route::delete('/member/studyPlaneDelete/{id}', [StudyPlaneController::class, 'studyPlaneDelete'])->name('studyPlaneDelete');

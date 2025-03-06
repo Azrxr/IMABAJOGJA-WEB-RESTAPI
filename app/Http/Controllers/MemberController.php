@@ -7,14 +7,25 @@ use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\MembersResource;
+use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\MemberCollection;
 
 class MemberController extends Controller
 {
     //
     public function profile(Request $request)
     {
-        $member = User::with('member')->findOrFail(Auth::id());
+        $member = User::with([
+            'member',
+            'member.province:id,name',
+            'member.regency:id,name',
+            'member.district:id,name',
+            'member.studyPlans',
+            'member.studyMembers'
+        ])->findOrFail(Auth::id());
+
         if ($member->role !== 'member') {
             return response()->json([
                 'error' => true,
@@ -23,11 +34,12 @@ class MemberController extends Controller
             ]);
         }
 
+
         if ($request->wantsJson()) {
             return response()->json([
                 'error' => false,
                 'message' => 'profile success!',
-                'data' => $member
+                'data' => new ProfileResource($member)
             ]);
         }
     }
@@ -46,23 +58,21 @@ class MemberController extends Controller
             // Validasi untuk tabel members
             'fullname' => 'sometimes|string|max:255',
             'phone_number' => 'sometimes|string|max:255',
-            'profile_img' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048|nullable',
-            'province' => 'sometimes|integer|exists:provinces,id',
-            'regency' => 'sometimes|integer|exists:regencies,id',
-            'address' => 'sometimes|string|max:255',
+            'profile_img_path' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'province_id' => 'sometimes|integer|exists:provinces,id',
+            'regency_id' => 'sometimes|integer|exists:regencies,id',
+            'district_id' => 'sometimes|integer|exists:districts,id',
+            'full_address' => 'sometimes|string|max:255',
             'kode_pos' => 'sometimes|string|max:255',
             'agama' => 'sometimes|string|max:255',
             'nisn' => 'sometimes|string|max:255',
             'tempat' => 'sometimes|string|max:255',
             'tanggal_lahir' => 'sometimes|date',
-            'gender' => 'sometimes|string|max:255',
             'gender' => 'sometimes|string|in:male,female|max:255',
             'scholl_origin' => 'sometimes|string|max:255',
             'tahun_lulus' => 'sometimes|integer',
+            'is_studyng' => 'sometimes|boolean',
 
-            'kampus' => 'sometimes|string|max:255',
-            'fakultas' => 'sometimes|string|max:255',
-            'prodi' => 'sometimes|string|max:255',
         ]);
         // Ambil data user dan members
         $user = User::findOrFail(Auth::id());
@@ -78,7 +88,10 @@ class MemberController extends Controller
         // Perbarui password jika ada
         if (isset($validatedData['current_password']) && isset($validatedData['new_password'])) {
             if (!Hash::check($validatedData['current_password'], $user->password)) {
-                return response()->json(['error' => 'Password saat ini salah'], 400);
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Password saat ini salah'
+                ], 400);
             }
             $user->password = Hash::make($validatedData['new_password']);
         }
@@ -96,28 +109,29 @@ class MemberController extends Controller
         $member->fill($validatedData);
 
         // Perbarui foto profil jika ada
-        if ($req->hasFile('profile_img')) {
+        if ($req->hasFile('profile_img_path')) {
             // Hapus foto lama jika ada
-            if ($member->profile_img && Storage::disk('public')->exists($member->profile_img)) {
-                Storage::disk('public')->delete($member->profile_img);
+            if ($member->profile_img_path && Storage::disk('public')->exists($member->profile_img_path)) {
+                Storage::disk('public')->delete($member->profile_img_path);
             }
             // if ($member->profile_img) {
             //     Storage::disk('public')->delete($member->profile_img);
             // }
 
             // Simpan foto baru
-            $img = $req->file('profile_img');
+            $img = $req->file('profile_img_path');
             $filename = date('Y-m-d') . '_' . $user->id . '_' . $user->username . '.' . $img->getClientOriginalExtension();
             $path = 'photo_user/' . $filename;
 
             Storage::disk('public')->put($path, file_get_contents($img));
-            $member->profile_img = $path;
+            $member->profile_img_path = $path;
         }
 
         $member->save();
 
 
         return response()->json([
+            'error' => false,
             'message' => $member->wasRecentlyCreated
                 ? 'Profile created successfully for user ' . $member
                 : 'Profile updated successfully',
@@ -131,7 +145,16 @@ class MemberController extends Controller
     {
         $filters = $request->only(['search', 'generation', 'member_type']);
 
-        $members = Member::query()
+        $members = Member::with([
+            'province:id,name',
+            'regency:id,name',
+            'district:id,name',
+            'studyPlans.university:id,name',
+    'studyPlans.programStudy:id,name',
+    'studyMembers.university:id,name',
+    'studyMembers.faculty:id,name',
+    'studyMembers.programStudy:id,name'
+        ])
             ->when(isset($filters['search']), function ($query) use ($filters) {
                 $query->where('fullname', 'like', '%' . $filters['search'] . '%');
             })
@@ -146,8 +169,8 @@ class MemberController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'error' => false,
-                'message' => 'list members success!',
-                'data' => $members
+                'message' => 'List members success!',
+                'data' => MembersResource::collection($members)
             ]);
         }
     }
@@ -165,4 +188,3 @@ class MemberController extends Controller
         }
     }
 }
-
