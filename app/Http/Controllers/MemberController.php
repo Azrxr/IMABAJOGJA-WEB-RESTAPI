@@ -11,6 +11,7 @@ use App\Http\Resources\MembersResource;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\MemberCollection;
+use App\Http\Resources\MembersCollection;
 
 class MemberController extends Controller
 {
@@ -150,10 +151,10 @@ class MemberController extends Controller
             'regency:id,name',
             'district:id,name',
             'studyPlans.university:id,name',
-    'studyPlans.programStudy:id,name',
-    'studyMembers.university:id,name',
-    'studyMembers.faculty:id,name',
-    'studyMembers.programStudy:id,name'
+            'studyPlans.programStudy:id,name',
+            'studyMembers.university:id,name',
+            'studyMembers.faculty:id,name',
+            'studyMembers.programStudy:id,name'
         ])
             ->when(isset($filters['search']), function ($query) use ($filters) {
                 $query->where('fullname', 'like', '%' . $filters['search'] . '%');
@@ -170,7 +171,21 @@ class MemberController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'List members success!',
-                'data' => MembersResource::collection($members)
+                'data' =>
+                [
+                    'current_page' => $members->currentPage(),
+                    'data' => MembersResource::collection($members), // Menggunakan Resource
+                    'first_page_url' => $members->url(1),
+                    'from' => $members->firstItem(),
+                    'last_page' => $members->lastPage(),
+                    'last_page_url' => $members->url($members->lastPage()),
+                    'next_page_url' => $members->nextPageUrl(),
+                    'path' => $members->path(),
+                    'per_page' => $members->perPage(),
+                    'prev_page_url' => $members->previousPageUrl(),
+                    'to' => $members->lastItem(),
+                    'total' => $members->total(),
+                ]
             ]);
         }
     }
