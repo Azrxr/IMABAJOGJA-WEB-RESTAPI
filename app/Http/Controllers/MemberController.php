@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\MembersResource;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Resources\MemberCollection;
-use App\Http\Resources\MembersCollection;
 
 class MemberController extends Controller
 {
@@ -192,13 +190,23 @@ class MemberController extends Controller
 
     public function member(Request $request, $id)
     {
-        $member = Member::findOrFail($id);
+        // $member = Member::findOrFail($id);
+        $member = Member::with([
+            'province:id,name',
+            'regency:id,name',
+            'district:id,name',
+            'studyPlans.university:id,name',
+            'studyPlans.programStudy:id,name',
+            'studyMembers.university:id,name',
+            'studyMembers.faculty:id,name',
+            'studyMembers.programStudy:id,name'
+        ])->findOrFail($id);
 
         if ($request->wantsJson()) {
             return response()->json([
                 'error' => false,
                 'message' => 'detail member success!',
-                'data' => $member
+                'data' => new MembersResource($member)
             ]);
         }
     }
