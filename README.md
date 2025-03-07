@@ -93,3 +93,6 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
  * - Method: deleteFile
  * - Name: deleteFile
  */
+ ## Member
+ Post uploadDocument -> upload otomatis update
+ home uploadHomePhoto -> upload, delete

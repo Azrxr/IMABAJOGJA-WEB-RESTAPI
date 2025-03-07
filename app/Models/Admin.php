@@ -15,8 +15,14 @@ class Admin extends Model
         'regency_id',
         'district_id',
         'full_address',
-        'profile_img',
+        'profile_img_path',
     ];
+
+    protected $appends = ['profile_img_url'];
+    public function getProfileImgUrlAttribute()
+    {
+        return $this->profile_img_path ? url('storage/' . $this->profile_img_path) : null;
+    }
 
     public function user()
     {

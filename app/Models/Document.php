@@ -11,35 +11,74 @@ class Document extends Model
 
     protected $fillable = [
         'member_id',
-        'ijazah',
-        'ktp',
-        'kk',
-        'ijazah_skl',
-        'raport',
-        'photo_3x4',
+        'ijazah_path',
+        'ktp_path',
+        'kk_path',
+        'ijazah_skl_path',
+        'raport_path',
+        'photo_3x4_path',
         //berkas sipil
-        'kk_legalisir',
-        'akte_legalisir',
+        'kk_legalisir_path',
+        'akte_legalisir_path',
         //berkas sekolah
-        'skhu_legalisir',
-        'raport_legalisir',
-        'surat_baik',
-        'surat_rekom_kades',
-        'surat_keterangan_baik',
-        'surat_penghasilan_ortu',
-        'surat_tidak_mampu',
-        'surat_pajak_bumi_bangunan',
-        'surat_tidak_pdam',
-        'token_listrik',
+        'skhu_legalisir_path',
+        'raport_legalisir_path',
+        'surat_baik_path',
+        'surat_rekom_kades_path',
+        'surat_keterangan_baik_path',
+        'surat_penghasilan_ortu_path',
+        'surat_tidak_mampu_path',
+        'surat_pajak_bumi_bangunan_path',
+        'surat_tidak_pdam_path',
+        'token_listrik_path',
         //berkas kapolsek
-        'skck',
+        'skck_path',
         //berkas lain2
-        'sertifikat_prestasi',
-        'foto_keluarga',
-        'kartu_kip',
-        'kartu_pkh',
-        'kartu_kks',
+        'sertifikat_prestasi_path',
+        'foto_keluarga_path',
+        'kartu_kip_path',
+        'kartu_pkh_path',
+        'kartu_kks_path',
     ];
+
+    protected $appends = ['documents_url'];
+    public function getDocumentsUrlAttribute()
+    {
+        $filePaths = [
+            'ijazah_path',
+            'ktp_path',
+            'kk_path',
+            'ijazah_skl_path',
+            'raport_path',
+            'photo_3x4_path',
+            'kk_legalisir_path',
+            'akte_legalisir_path',
+            'skhu_legalisir_path',
+            'raport_legalisir_path',
+            'surat_baik_path',
+            'surat_rekom_kades_path',
+            'surat_keterangan_baik_path',
+            'surat_penghasilan_ortu_path',
+            'surat_tidak_mampu_path',
+            'surat_pajak_bumi_bangunan_path',
+            'surat_tidak_pdam_path',
+            'token_listrik_path',
+            'skck_path',
+            'sertifikat_prestasi_path',
+            'foto_keluarga_path',
+            'kartu_kip_path',
+            'kartu_pkh_path',
+            'kartu_kks_path',
+        ];
+
+        $documentUrls = [];
+
+        foreach ($filePaths as $path) {
+            $documentUrls[$path] = $this->$path ? url('storage/' . $this->$path) : null;
+        }
+
+        return $documentUrls;
+    }
 
     public function member()
     {
@@ -59,12 +98,30 @@ class Document extends Model
             // Loop untuk menghapus semua file terkait
             foreach ($document->getAttributes() as $key => $value) {
                 if (in_array($key, [
-                    'ktp', 'kk', 'ijazah', 'ijazah_skl', 'raport', 'photo_3x4',
-                    'kk_legalisir', 'akte_legalisir', 'skhu_legalisir', 'raport_legalisir',
-                    'surat_baik', 'surat_rekom_kades', 'surat_keterangan_baik',
-                    'surat_penghasilan_ortu', 'surat_tidak_mampu', 'surat_pajak_bumi_bangunan',
-                    'surat_tidak_pdam', 'token_listrik', 'skck', 'sertifikat_prestasi',
-                    'foto_keluarga', 'kartu_kip', 'kartu_pkh', 'kartu_kks'
+                    'ktp_path',
+                    'kk_path',
+                    'ijazah_path',
+                    'ijazah_skl_path',
+                    'raport_path',
+                    'photo_3x4_path',
+                    'kk_legalisir_path',
+                    'akte_legalisir_path',
+                    'skhu_legalisir_path',
+                    'raport_legalisir_path',
+                    'surat_baik_path',
+                    'surat_rekom_kades_path',
+                    'surat_keterangan_baik_path',
+                    'surat_penghasilan_ortu_path',
+                    'surat_tidak_mampu_path',
+                    'surat_pajak_bumi_bangunan_path',
+                    'surat_tidak_pdam_path',
+                    'token_listrik_path',
+                    'skck_path',
+                    'sertifikat_prestasi_path',
+                    'foto_keluarga_path',
+                    'kartu_kip_path',
+                    'kartu_pkh_path',
+                    'kartu_kks_path'
                 ]) && $value) {
                     // Hapus file dari storage jika ada
                     Storage::disk('public')->delete($value);

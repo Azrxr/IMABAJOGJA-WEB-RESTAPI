@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('regency_id')->nullable()->constrained('regencies')->onDelete('set null');
             $table->foreignId('district_id')->nullable()->constrained('districts')->onDelete('set null');
             $table->text('full_address')->nullable();
-            $table->string('profile_img')->nullable()->comment('path to image');
+            $table->string('profile_img_path')->nullable()->comment('path to image');
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

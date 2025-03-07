@@ -11,8 +11,14 @@ class HomePhoto extends Model
     protected $fillable = [
         'document_id',
         'photo_title',
-        'photo_img',
+        'photo_img_path',
     ];
+
+    protected $appends = ['photo_img_url'];
+    public function getPhotoImgUrlAttribute()
+    {
+        return $this->photo_img_path ? url('storage/' . $this->photo_img_path) : null;
+    }
 
     public function document()
     {

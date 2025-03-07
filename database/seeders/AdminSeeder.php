@@ -29,7 +29,7 @@ class AdminSeeder extends Seeder
             'regency_id' => 3,
             'district_id' => 3,
             'full_address' => 'Jl. Sudirman No. 1',
-            'profile_img' => 'path/to/image.jpg',
+            'profile_img_path' => 'path/to/image.jpg',
         ]);
     }
 }

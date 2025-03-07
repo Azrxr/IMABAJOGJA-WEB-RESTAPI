@@ -35,55 +35,53 @@ class DocumentController extends Controller
         }
     }
 
-
     public function uploadDocument(Request $request)
     {
         $user = User::with('member')->findOrFail(Auth::id());
         $memberId = $user->member->id;
 
         $validateDocument = $request->validate([
-            'ktp' => 'nullable|file|mimes:pdf|max:2048',
-            'kk' => 'nullable|file|mimes:pdf|max:2048',
-            'ijazah' => 'nullable|file|mimes:pdf|max:2048',
-            'ijazah_skl' => 'nullable|file|mimes:pdf|max:2048',
-            'raport' => 'nullable|file|mimes:pdf|max:2048',
-            'photo_3x4' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'kk_legalisir' => 'nullable|file|mimes:pdf|max:2048',
-            'akte_legalisir' => 'nullable|file|mimes:pdf|max:2048',
-            'skhu_legalisir' => 'nullable|file|mimes:pdf|max:2048',
-            'raport_legalisir' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_baik' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_rekom_kades' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_keterangan_baik' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_penghasilan_ortu' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_tidak_mampu' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_pajak_bumi_bangunan' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_tidak_pdam' => 'nullable|file|mimes:pdf|max:2048',
-            'token_listrik' => 'nullable|file|mimes:pdf|max:2048',
-            'skck' => 'nullable|file|mimes:pdf|max:2048',
-            'sertifikat_prestasi' => 'nullable|file|mimes:pdf|max:2048',
-            'foto_keluarga' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'kartu_kip' => 'nullable|file|mimes:pdf|max:2048',
-            'kartu_pkh' => 'nullable|file|mimes:pdf|max:2048',
-            'kartu_kks' => 'nullable|file|mimes:pdf|max:2048',
-            // 'home_photo_id' => 'nullable|integer|exists:home_photos,id',
+            'ktp_path' => 'nullable|file|mimes:pdf|max:2048',
+            'kk_path' => 'nullable|file|mimes:pdf|max:2048',
+            'ijazah_path' => 'nullable|file|mimes:pdf|max:2048',
+            'ijazah_skl_path' => 'nullable|file|mimes:pdf|max:2048',
+            'raport_path' => 'nullable|file|mimes:pdf|max:2048',
+            'photo_3x4_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'kk_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
+            'akte_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
+            'skhu_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
+            'raport_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_baik_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_rekom_kades_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_keterangan_baik_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_penghasilan_ortu_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_tidak_mampu_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_pajak_bumi_bangunan_path' => 'nullable|file|mimes:pdf|max:2048',
+            'surat_tidak_pdam_path' => 'nullable|file|mimes:pdf|max:2048',
+            'token_listrik_path' => 'nullable|file|mimes:pdf|max:2048',
+            'skck_path' => 'nullable|file|mimes:pdf|max:2048',
+            'sertifikat_prestasi_path' => 'nullable|file|mimes:pdf|max:2048',
+            'foto_keluarga_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'kartu_kip_path' => 'nullable|file|mimes:pdf|max:2048',
+            'kartu_pkh_path' => 'nullable|file|mimes:pdf|max:2048',
+            'kartu_kks_path' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         $document = Document::firstOrNew(['member_id' => $memberId]);
 
         // Loop semua input yang difilter untuk diunggah
-        foreach ($validateDocument as $key => $file) {
-            if ($file) {
-
-                $oldFile = $document->{$key};
-                if ($oldFile && Storage::disk('public')->exists($oldFile)) {
+        foreach ($validateDocument as $key => $doc) {
+            if ($doc) {
+                $fieldName = str_replace('_path', '', $key);
+                $oldDoc = $document->{$key};
+                if ($oldDoc && Storage::disk('public')->exists($oldDoc)) {
                     // Hapus file lama
-                    Storage::disk('public')->delete($oldFile);
+                    Storage::disk('public')->delete($oldDoc);
                 }
 
                 $folderPath = "documents/{$memberId}";
-                $fileName = "{$key}_" . time() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs($folderPath, $fileName, 'public');
+                $fileName = "{$fieldName}_" . time() . '.' . $doc->getClientOriginalExtension();
+                $path = $doc->storeAs($folderPath, $fileName, 'public');
 
                 // Simpan path file di field terkait
                 $document->{$key} = $path;
@@ -116,16 +114,16 @@ class DocumentController extends Controller
         }
         $validatePhoto = $request->validate([
             'photo_title' => 'required|string',
-            'photo_img' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'photo_img_path' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $folderPath = "documents/{$memberId}";
-        $fileName = "{$validatePhoto['photo_title']}_" . time() . '.' . $validatePhoto['photo_img']->getClientOriginalExtension();
-        $path = $validatePhoto['photo_img']->storeAs($folderPath, $fileName, 'public');
+        $fileName = "{$validatePhoto['photo_title']}_" . time() . '.' . $validatePhoto['photo_img_path']->getClientOriginalExtension();
+        $path = $validatePhoto['photo_img_path']->storeAs($folderPath, $fileName, 'public');
         $homePhoto = HomePhoto::create([
             'document_id' => $document->id,
             'photo_title' => $validatePhoto['photo_title'],
-            'photo_img' => $path,
+            'photo_img_path' => $path,
         ]);
 
         if ($request->wantsJson()) {
