@@ -64,6 +64,7 @@ Route::middleware(['api'])->group(function () {
     //admin
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/profile_admin', [AdminController::class, 'profile_admin'])->name('profile_admin');
+        Route::post('/admin/updateProfile', [AdminController::class, 'pdateProfile'])->name('updateProfile');
 
         // organozationProfile
         Route::post('/imaba/profileUpdate', [HomeController::class, 'editProfile'])->name('editProfile');
@@ -73,8 +74,11 @@ Route::middleware(['api'])->group(function () {
 
         //studyplane
         Route::get('/admin/getAllStudyPlans', [StudyPlaneController::class, 'getAllStudyPlans'])->name('getAllStudyPlans');
-        Route::post('/admin/studylaneAdd', [StudyPlaneController::class, 'adminStudyPlaneAdd']);
-        Route::post('/admin/studyplaneUpdate/{id}', [StudyPlaneController::class, 'adminStudyPlaneUpdate']);
-        Route::delete('/admin/studyplaneDelete/{id}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
+        Route::post('/admin/studyPlaneAdd', [StudyPlaneController::class, 'adminStudyPlaneAdd']);
+        Route::post('/admin/studyPlaneUpdate/{id}', [StudyPlaneController::class, 'adminStudyPlaneUpdate']);
+        Route::delete('/admin/studyPlaneDelete/{id}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
+
+        //member
+        Route::post('/admin/createMember', [MemberController::class, 'createMember'])->name('createMember');
     });
 });

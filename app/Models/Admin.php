@@ -29,7 +29,7 @@ class Admin extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function province()
+    public function provincy()
     {
         return $this->belongsTo(Province::class);
     }

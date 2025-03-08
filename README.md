@@ -7,92 +7,112 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Web Service IMABA Jogja
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Documentation
 
-## Learning Laravel
+/\*\*
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   API Routes for Organization Profile Management
+-
+-   POST /imaba/profileUpdate
+-   -   Updates the profile of the organization.
+-   -   Controller: HomeController
+-   -   Method: editProfile
+-   -   Name: editProfile
+-
+-   POST /imaba/addFile
+-   -   Adds a new file to the organization's profile.
+-   -   Controller: HomeController
+-   -   Method: addFile
+-   -   Name: addFile
+-
+-   POST /imaba/updateFile/{id}
+-   -   Updates an existing file in the organization's profile.
+-   -   Controller: HomeController
+-   -   Method: updateFile
+-   -   Name: updateFile
+-
+-   DELETE /imaba/deleteFile/{id}
+-   -   Deletes a file from the organization's profile.
+-   -   Controller: HomeController
+-   -   Method: deleteFile
+-   -   Name: deleteFile
+        \*/
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Member
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Post uploadDocument -> upload otomatis update
 
-## Laravel Sponsors
+## Member
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Upload Home Photo
 
-### Premium Partners
+-   **Endpoint:** `POST /home/uploadHomePhoto`
+-   **Description:** Upload or delete a home photo.
+-   **Controller:** HomeController
+-   **Method:** uploadHomePhoto
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### Create Multiple Members
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-## Documentation 
-/**
- * API Routes for Organization Profile Management
- *
- * POST /imaba/profileUpdate
- * - Updates the profile of the organization.
- * - Controller: HomeController
- * - Method: editProfile
- * - Name: editProfile
- *
- * POST /imaba/addFile
- * - Adds a new file to the organization's profile.
- * - Controller: HomeController
- * - Method: addFile
- * - Name: addFile
- *
- * POST /imaba/updateFile/{id}
- * - Updates an existing file in the organization's profile.
- * - Controller: HomeController
- * - Method: updateFile
- * - Name: updateFile
- *
- * DELETE /imaba/deleteFile/{id}
- * - Deletes a file from the organization's profile.
- * - Controller: HomeController
- * - Method: deleteFile
- * - Name: deleteFile
- */
- ## Member
- Post uploadDocument -> upload otomatis update
- home uploadHomePhoto -> upload, delete
+-   **Method:** `POST`
+-   **Endpoint:** `api/admin/createMember`
+-   **Headers:**
+    -   `Accept: application/json`
+    -   `Content-Type: application/json`
+    -   **Description:** Auto create account dan auto update data duplicate berdasarkan no_member
+        -   `username: no_member` (e.g., M001)
+        -   `email: no_member@example.com` (e.g., M001@example.com)
+        -   `Password: Pass{No Member}` (e.g., PassM001)
+    -   **Body: Raw Json**
+        ```json
+        {
+            "members": [
+                {
+                    "no_member": "M001",
+                    "angkatan": 2024,
+                    "fullname": "John Doe",
+                    "phone_number": "08123456789",
+                    "province_id": 1,
+                    "regency_id": 1,
+                    "district_id": 1,
+                    "full_address": "Jl. Merdeka No. 10",
+                    "agama": "islam",
+                    "nisn": "1234567890",
+                    "tempat": "Jakarta",
+                    "tanggal_lahir": "2000-01-01",
+                    "gender": "male",
+                    "kode_pos": "12345",
+                    "member_type": "istimewa",
+                    "scholl_origin": "SMA Negeri 1 Jakarta",
+                    "tahun_lulus": 2023,
+                    "is_studyng": true
+                }
+            ]
+        }
+        ```
+    -   **Response: Json**
+        ```json
+        {
+            "error": false,
+            "message": "1 members successfully created!",
+            "data": [
+                {
+                    "message": "updated",
+                    "user": {
+                        "id": 6,
+                        "name": null,
+                        "email": "M001@example.com",
+                        "username": "M001"
+                    },
+                    "member": {
+                        "id": 3,
+                        "no_member": "M001",
+                        "fullname": "John Doe"
+                    }
+                }
+            ]
+        }
+        ```

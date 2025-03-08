@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Member;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\MembersResource;
@@ -208,6 +209,92 @@ class MemberController extends Controller
                 'message' => 'detail member success!',
                 'data' => new MembersResource($member)
             ]);
+        }
+    }
+
+    public function createMember(Request $request)
+    {
+        $validatedData = $request->validate([
+            'members' => 'required|array|min:1', // Harus array dan minimal ada 1 data
+            'members.*.no_member' => 'required|string|max:255',
+            'members.*.angkatan' => 'required|integer',
+            'members.*.fullname' => 'required|string|max:255',
+            'members.*.phone_number' => 'required|string|max:255',
+            'members.*.province_id' => 'required|integer|exists:provincies,id',
+            'members.*.regency_id' => 'required|integer|exists:regencies,id',
+            'members.*.district_id' => 'required|integer|exists:districts,id',
+            'members.*.full_address' => 'required|string|max:255',
+            'members.*.agama' => 'required|string|in:islam,kristen,katolik,hindu,budha,konghucu,lainnya|max:255',
+            'members.*.member_type' => 'required|string|in:camaba,pengurus,anggota,demissioner,istimewa|max:255',
+            'members.*.nisn' => 'required|string|max:255',
+            'members.*.tempat' => 'required|string|max:255',
+            'members.*.tanggal_lahir' => 'required|date',
+            'members.*.gender' => 'required|string|in:male,female|max:255',
+            'members.*.kode_pos' => 'required|string|max:255',
+            'members.*.scholl_origin' => 'required|string|max:255',
+            'members.*.tahun_lulus' => 'required|integer',
+            'members.*.is_studyng' => 'required|boolean',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $createdMembers = [];
+
+            foreach ($validatedData['members'] as $memberData) {
+                // Buat user baru
+                $existingMember = Member::where('no_member', $memberData['no_member'])->first();
+
+                if ($existingMember) {
+                    // Jika member sudah ada, update data
+                    $existingMember->update($memberData);
+                    $user = $existingMember->user;
+                    $message = "updated";
+                } else {
+                    $user = User::create([
+                        'email' => $memberData['no_member'] . '@example.com',
+                        'username' => $memberData['no_member'],
+                        'password' => Hash::make('Pass' . $memberData['no_member']),
+                        'role' => 'member',
+                    ]);
+
+                    // Buat member baru
+                    $existingMember = Member::create(array_merge($memberData, [
+                        'user_id' => $user->id,
+                    ]));
+                    $message = "created";
+                }
+                // Tambahkan ke daftar member yang berhasil dibuat
+                $createdMembers[] = [
+                    'message' => $message,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'username' => $user->username,
+                    ],
+                    'member' => [
+                        'id' => $existingMember->id,
+                        'no_member' => $existingMember->no_member,
+                        'fullname' => $existingMember->fullname,
+                    ]
+                ];
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'error' => false,
+                'message' => count($createdMembers) . ' members successfully created!',
+                'data' => $createdMembers
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to create members',
+                'details' => $e->getMessage()
+            ], 500);
         }
     }
 }

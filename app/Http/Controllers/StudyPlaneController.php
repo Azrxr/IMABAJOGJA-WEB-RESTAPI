@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StudyPlanResource;
 use App\Models\User;
 use App\Models\Member;
 use App\Models\StudyMember;
@@ -13,21 +14,21 @@ use Illuminate\Support\Facades\Auth;
 class StudyPlaneController extends Controller
 {
     public function getAllStudyPlans()
-{
-    // Ambil semua member yang memiliki study plans
-    $members = Member::whereHas('studyPlans')
-        ->with([
-            'studyPlans.university',
-            'studyPlans.programStudy'
-        ])
-        ->get();
+    {
+        // Ambil semua member yang memiliki study plans
+        $members = Member::whereHas('studyPlans')
+            ->with([
+                'studyPlans.university',
+                'studyPlans.programStudy'
+            ])
+            ->get();
 
-    return response()->json([
-        'error' => false,
-        'message' => 'Get all study plans success!',
-        'data' => $members
-    ], 200);
-}
+        return response()->json([
+            'error' => false,
+            'message' => 'Get all study plans success!',
+            'data' => $members
+        ], 200);
+    }
     public function index(Request $request)
     {
         $memberId = User::with('member')
@@ -45,7 +46,6 @@ class StudyPlaneController extends Controller
 
             if (!isset($groupedData[$universityName])) {
                 $groupedData[$universityName] = [
-                    'university_id' => $plan->university_id,
                     'programs' => []
                 ];
             }
@@ -53,7 +53,8 @@ class StudyPlaneController extends Controller
             $groupedData[$universityName]['programs'][] = [
                 'id' => $plan->program_study_id,
                 'name' => $plan->programStudy->name,
-                'jenjang' => $plan->programStudy->jenjang
+                'jenjang' => $plan->programStudy->jenjang,
+                'status' => $plan->status
             ];
         }
 
@@ -61,7 +62,7 @@ class StudyPlaneController extends Controller
         return response()->json([
             'error' => false,
             'message' => 'Get study plans success!',
-            'data' => $studyPlans
+            'data' => $groupedData
         ]);
     }
     public function studyPlaneAdd(Request $request)
@@ -184,79 +185,80 @@ class StudyPlaneController extends Controller
         ], 200);
     }
 
+// ADMIN
+
     public function adminStudyPlaneAdd(Request $request)
-{
-    // Validasi input
-    $validate = $request->validate([
-        'member_id' => 'required|exists:members,id',
-        'university_id' => 'required|exists:universities,id',
-        'program_study_id' => 'required|exists:program_studies,id',
-        'status' => 'nullable|in:pending,accepted,rejected'
-    ]);
+    {
+        // Validasi input
+        $validate = $request->validate([
+            'member_id' => 'required|exists:members,id',
+            'university_id' => 'required|exists:universities,id',
+            'program_study_id' => 'required|exists:program_studies,id',
+            'status' => 'nullable|in:pending,accepted,rejected'
+        ]);
 
-    // Simpan study plan baru (tanpa batasan universitas & program studi)
-    $studyPlan = StudyPlane::create([
-        'member_id' => $validate['member_id'],
-        'university_id' => $validate['university_id'],
-        'program_study_id' => $validate['program_study_id'],
-        'status' => $validate['status'],
-    ]);
-
-    return response()->json([
-        'error' => false,
-        'message' => 'Study plan added successfully by admin!',
-        'data' => $studyPlan
-    ], 201);
-}
-
-public function adminStudyPlaneUpdate(Request $request, $id)
-{
-    // Validasi input
-    $validate = $request->validate([
-        'university_id' => 'required|exists:universities,id',
-        'program_study_id' => 'required|exists:program_studies,id',
-        'status' => 'nullable|in:pending,accepted,rejected'
-    ]);
-
-    // Cari study plan berdasarkan ID
-    $studyPlan = StudyPlane::findOrFail($id);
-
-    // Update data
-    $studyPlan->update([
-        'university_id' => $validate['university_id'],
-        'program_study_id' => $validate['program_study_id'],
-        'status' => $validate['status'],
-    ]);
-    if ($validate['status'] == 'accepted') {
-        StudyMember::create([
-            'member_id' => $studyPlan->member_id,
+        // Simpan study plan baru (tanpa batasan universitas & program studi)
+        $studyPlan = StudyPlane::create([
+            'member_id' => $validate['member_id'],
             'university_id' => $validate['university_id'],
             'program_study_id' => $validate['program_study_id'],
+            'status' => $validate['status'],
         ]);
-        Member::where('id', $studyPlan->member_id)->update([
-            'is_studyng' => true
-        ]);
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Study plan added successfully by admin!',
+            'data' => $studyPlan
+        ], 201);
     }
 
-    return response()->json([
-        'error' => false,
-        'message' => 'Study plan updated successfully by admin!',
-        'data' => $studyPlan
-    ], 200);
-}
+    public function adminStudyPlaneUpdate(Request $request, $id)
+    {
+        // Validasi input
+        $validate = $request->validate([
+            'university_id' => 'required|exists:universities,id',
+            'program_study_id' => 'required|exists:program_studies,id',
+            'status' => 'nullable|in:pending,accepted,rejected'
+        ]);
 
-public function adminStudyPlaneDelete($id)
-{
-    // Cari study plan berdasarkan ID
-    $studyPlan = StudyPlane::findOrFail($id);
+        // Cari study plan berdasarkan ID
+        $studyPlan = StudyPlane::findOrFail($id);
 
-    // Hapus study plan dari database
-    $studyPlan->delete();
+        // Update data
+        $studyPlan->update([
+            'university_id' => $validate['university_id'],
+            'program_study_id' => $validate['program_study_id'],
+            'status' => $validate['status'],
+        ]);
+        if ($validate['status'] == 'accepted') {
+            StudyMember::create([
+                'member_id' => $studyPlan->member_id,
+                'university_id' => $validate['university_id'],
+                'program_study_id' => $validate['program_study_id'],
+            ]);
+            Member::where('id', $studyPlan->member_id)->update([
+                'is_studyng' => true
+            ]);
+        }
 
-    return response()->json([
-        'error' => false,
-        'message' => 'Study plan deleted successfully by admin!'
-    ], 200);
-}
+        return response()->json([
+            'error' => false,
+            'message' => 'Study plan updated successfully by admin!',
+            'data' => $studyPlan
+        ], 200);
+    }
 
+    public function adminStudyPlaneDelete($id)
+    {
+        // Cari study plan berdasarkan ID
+        $studyPlan = StudyPlane::findOrFail($id);
+
+        // Hapus study plan dari database
+        $studyPlan->delete();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Study plan deleted successfully by admin!'
+        ], 200);
+    }
 }
