@@ -59,18 +59,19 @@ class MemberController extends Controller
             'fullname' => 'sometimes|string|max:255',
             'phone_number' => 'sometimes|string|max:255',
             'profile_img_path' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'province_id' => 'sometimes|integer|exists:provinces,id',
+            'province_id' => 'sometimes|integer|exists:provincies,id',
             'regency_id' => 'sometimes|integer|exists:regencies,id',
             'district_id' => 'sometimes|integer|exists:districts,id',
             'full_address' => 'sometimes|string|max:255',
             'kode_pos' => 'sometimes|string|max:255',
-            'agama' => 'sometimes|string|max:255',
+            'agama' => 'sometimes|string|in:Islam,Kristen,Katolik,Hindu,Budha,Konghucu,Lainnya|max:255',
             'nisn' => 'sometimes|string|max:255',
             'tempat' => 'sometimes|string|max:255',
             'tanggal_lahir' => 'sometimes|date',
-            'gender' => 'sometimes|string|in:male,female|max:255',
+            'gender' => 'sometimes|string|in:Laki-laki,Perempuan|max:255',
             'scholl_origin' => 'sometimes|string|max:255',
             'tahun_lulus' => 'sometimes|integer',
+            'angkatan' => 'sometimes|integer',
             'is_studyng' => 'sometimes|boolean',
 
         ]);
@@ -114,10 +115,6 @@ class MemberController extends Controller
             if ($member->profile_img_path && Storage::disk('public')->exists($member->profile_img_path)) {
                 Storage::disk('public')->delete($member->profile_img_path);
             }
-            // if ($member->profile_img) {
-            //     Storage::disk('public')->delete($member->profile_img);
-            // }
-
             // Simpan foto baru
             $img = $req->file('profile_img_path');
             $filename = date('Y-m-d') . '_' . $user->id . '_' . $user->username . '.' . $img->getClientOriginalExtension();

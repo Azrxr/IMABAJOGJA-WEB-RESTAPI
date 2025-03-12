@@ -17,18 +17,18 @@ return new class extends Migration
             $table->string('no_member')->unique()->nullable();
             $table->string('angkatan')->nullable();
             $table->string('fullname');
-            $table->string('phone_number');
+            $table->string('phone_number')->nullable();
 
             $table->unsignedBigInteger('province_id')->nullable();
             $table->unsignedBigInteger('regency_id')->nullable();
             $table->unsignedBigInteger('district_id')->nullable();
             $table->text('full_address')->nullable();
 
-            $table->enum('agama', ['islam', 'kristen', 'katolik', 'hindu', 'budha', 'konghucu', 'lainnya'])->nullable();
+            $table->enum('agama', ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Budha', 'Konghucu', 'Lainnya'])->nullable();
             $table->integer('nisn')->nullable()->comment('opsional');
             $table->string('tempat');
             $table->date('tanggal_lahir');
-            $table->enum('gender', ['male', 'female']);
+            $table->enum('gender', ['Laki-laki', 'Perempuan']);
             $table->integer('kode_pos')->nullable();
 
             $table->enum('member_type', ['camaba', 'pengurus', 'anggota', 'demissioner', 'istimewa'])->default('camaba');

@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\auth\LoginController;
 use App\Http\Controllers\StudyPlaneController;
 use App\Http\Controllers\auth\RegisterController;
+use App\Http\Controllers\WilayahController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(['api'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/wilayah', [HomeController::class, 'wilayah'])->name('wilayah');
+    Route::get('/province', [WilayahController::class, 'province'])->name('province');
+    Route::get('/regency/{id}', [WilayahController::class, 'regency'])->name('regency');
+    Route::get('/district/{id}', [WilayahController::class, 'district'])->name('district');
+    
+    Route::get('/university', [StudyPlaneController::class, 'university'])->name('university');
+    Route::get('/programStudy/{id}', [StudyPlaneController::class, 'programStudy'])->name('programStudy');
+    Route::get('/faculty/{id}', [StudyPlaneController::class, 'faculty'])->name('faculty');
+
     Route::get('/universities', [HomeController::class, 'universities'])->name('universities');
     Route::get('/programStudy', [HomeController::class, 'programStudy'])->name('programStudy');
     // Autentikasi API menggunakan token
@@ -58,7 +67,6 @@ Route::middleware(['api'])->group(function () {
         //studyplane
         Route::get('/member/studyPlane', [StudyPlaneController::class, 'index'])->name('studyplane');
         Route::post('/member/studyPlaneAdd', [StudyPlaneController::class, 'studyPlaneAdd'])->name('studyPlaneAdd');
-        Route::post('/member/studyPlaneUpdate/{id}', [StudyPlaneController::class, 'studyPlaneUpdate'])->name('studyPlaneUpdate');
         Route::delete('/member/studyPlaneDelete/{id}', [StudyPlaneController::class, 'studyPlaneDelete'])->name('studyPlaneDelete');
     });
     //admin

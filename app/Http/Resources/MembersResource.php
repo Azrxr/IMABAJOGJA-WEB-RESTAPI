@@ -21,6 +21,8 @@ class MembersResource extends JsonResource
             'phone_number' => $this->phone_number,
             'member_type' => $this->member_type,
             'profile_img_url' => $this->profile_img_url,
+            'angkatan' => $this->angkatan,
+            'no_member' => $this->no_member,
 
             'full_address' => $this->full_address,
             'province' => $this->province ? $this->province->name : null,

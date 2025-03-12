@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\StudyPlanResource;
 use App\Models\User;
 use App\Models\Member;
-use App\Models\StudyMember;
 use App\Models\StudyPlane;
 use App\Models\University;
+use App\Models\StudyMember;
+use App\Models\ProgramStudy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Faculty;
 
 class StudyPlaneController extends Controller
 {
@@ -29,47 +30,97 @@ class StudyPlaneController extends Controller
             'data' => $members
         ], 200);
     }
-    public function index(Request $request)
+
+    public function university(Request $request)
     {
-        $memberId = User::with('member')
-            ->findOrFail(Auth::id());
-
-
-        $studyPlans = StudyPlane::where('member_id', $memberId->id)
-            ->with('university', 'programStudy')
-            ->get();
-
-        $groupedData = [];
-
-        foreach ($studyPlans as $plan) {
-            $universityName = $plan->university->name;
-
-            if (!isset($groupedData[$universityName])) {
-                $groupedData[$universityName] = [
-                    'programs' => []
-                ];
-            }
-
-            $groupedData[$universityName]['programs'][] = [
-                'id' => $plan->program_study_id,
-                'name' => $plan->programStudy->name,
-                'jenjang' => $plan->programStudy->jenjang,
-                'status' => $plan->status
-            ];
+        $query = University::select('id', 'name');
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->input('search') . '%');
         }
 
+        $universty = $query->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Get universities success!',
+            'data' => $universty->isEmpty() ? [['id' => 0, 'name' => 'Tidak ada']] : $universty
+        ]);
+    }
+
+    public function programStudy(Request $request, $id)
+    {
+        $query = ProgramStudy::select('id', 'name', 'jenjang')
+            ->where('university_id', $id);
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->input('search') . '%');
+        }
+
+        $programStudies = $query->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Get program studies success!',
+            'data' => $programStudies->isEmpty() ? [['id' => 0, 'name' => 'Tidak ada']] : $programStudies
+        ]);
+    }
+
+    public function faculty(Request $request, $id)
+    {
+        $query = Faculty::select('id', 'name')
+            ->where('university_id', $id);
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->input('search') . '%');
+        }
+
+        $programStudies = $query->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Get program studies success!',
+            'data' => $programStudies->isEmpty() ? [['id' => 0, 'name' => 'Tidak ada']] : $programStudies
+        ]);
+    }
+
+    public function index(Request $request)
+    {
+        $member = User::with('member')
+            ->findOrFail(Auth::id())
+            ->member;
+
+        if (!$member) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Anda belum memiliki data member!'
+            ], 400);
+        }
+
+        $memberId = $member->id;
+
+        $studyPlans = StudyPlane::where('member_id', $memberId)
+            ->with('university', 'programStudy')
+            ->get();
 
         return response()->json([
             'error' => false,
             'message' => 'Get study plans success!',
-            'data' => $groupedData
+            'data' => $studyPlans
         ]);
     }
     public function studyPlaneAdd(Request $request)
     {
-        $memberId = User::with('member')
+        // Ambil member ID dari user yang sedang login
+        $member = User::with('member')
             ->findOrFail(Auth::id())
-            ->id;
+            ->member; // Mengambil relasi member, bukan ID user
+
+        if (!$member) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Anda belum memiliki data member!'
+            ], 400);
+        }
+
+        $memberId = $member->id;
 
         $validate = $request->validate([
             'university_id' => 'required|exists:universities,id',
@@ -119,57 +170,6 @@ class StudyPlaneController extends Controller
         ], 201);
     }
 
-    public function studyPlaneUpdate(Request $request, $id)
-    {
-        // Validasi input
-        $validate = $request->validate([
-            'university_id' => 'required|exists:universities,id',
-            'program_study_id' => 'required|exists:program_studies,id',
-        ]);
-
-        // Ambil study plan berdasarkan ID
-        $studyPlan = StudyPlane::findOrFail($id);
-
-        // Cek jumlah universitas yang sudah dimasukkan oleh member
-        $universityCount = StudyPlane::where('member_id', $studyPlan->member_id)
-            ->distinct()
-            ->count('university_id');
-
-        if ($universityCount >= 2 && !StudyPlane::where([
-            ['member_id', $studyPlan->member_id],
-            ['university_id', $validate['university_id']]
-        ])->exists()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Anda hanya bisa memilih maksimal 2 universitas.'
-            ], 400);
-        }
-
-        // Cek jumlah program studi dalam universitas yang sama
-        $programStudyCount = StudyPlane::where([
-            ['member_id', $studyPlan->member_id],
-            ['university_id', $validate['university_id']]
-        ])->count();
-
-        if ($programStudyCount >= 2 && $studyPlan->university_id !== $validate['university_id']) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Anda hanya bisa memilih maksimal 2 program studi per universitas.'
-            ], 400);
-        }
-
-        // Update study plan
-        $studyPlan->update([
-            'university_id' => $validate['university_id'],
-            'program_study_id' => $validate['program_study_id'],
-        ]);
-
-        return response()->json([
-            'error' => false,
-            'message' => 'Study plan updated successfully!',
-            'data' => $studyPlan
-        ], 200);
-    }
 
     public function studyPlaneDelete($id)
     {
@@ -185,7 +185,7 @@ class StudyPlaneController extends Controller
         ], 200);
     }
 
-// ADMIN
+    // ADMIN
 
     public function adminStudyPlaneAdd(Request $request)
     {

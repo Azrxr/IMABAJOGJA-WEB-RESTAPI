@@ -30,6 +30,7 @@ class HomeController extends Controller
             'data' => $provinces
         ]);
     }
+    
 
     public function universities()
     {

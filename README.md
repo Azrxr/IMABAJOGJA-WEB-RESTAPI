@@ -9,8 +9,6 @@
 
 ## Web Service IMABA Jogja
 
-
-
 ## Documentation
 
 /\*\*
@@ -116,3 +114,133 @@ Post uploadDocument -> upload otomatis update
             ]
         }
         ```
+        ## Wilayah
+
+        ### Province
+        - **Method:** GET
+        - **Endpoint:** `/province`
+        - **Headers:** `Accept: application/json`
+        - **Response:**
+            ```json
+            {
+                "error": false,
+                "message": "List of all locations",
+                "data": [
+                    {
+                        "id": 1,
+                        "name": "Aceh"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Sumatra Utara"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Sumatra Barat"
+                    }
+                ]
+            }
+            ```
+
+        ### Regency
+        - **Method:** GET
+        - **Endpoint:** `/regency/{id}`
+        - **Headers:** `Accept: application/json`
+        - **Response:**
+            ```json
+            {
+                "error": false,
+                "message": "List of all locations",
+                "data": [
+                    {
+                        "id": 24,
+                        "name": "Kabupaten Asahan"
+                    },
+                    {
+                        "id": 25,
+                        "name": "Kabupaten Batu Bara"
+                    }
+                ]
+            }
+            ```
+
+        ### District
+        - **Method:** GET
+        - **Endpoint:** `/district/{id}`
+        - **Headers:** `Accept: application/json`
+        - **Response:**
+            ```json
+            {
+                "error": false,
+                "message": "List of all locations",
+                "data": [
+                    {
+                        "id": 13,
+                        "name": "Babah Rot"
+                    },
+                    {
+                        "id": 14,
+                        "name": "Blang Pidie"
+                    }
+                ]
+            }
+            ```
+## Study data
+### University
+- **Method:** GET
+- **Endpoint:** `/university`
+- **Headers:** `Accept: application/json`
+- **Params:** `search: name`
+- **Response:**
+```json
+{
+"error": false,
+    "message": "Get universities success!",
+    "data": [
+        {
+            "id": 1,
+            "name": "uin"
+        },
+        {
+            "id": 2,
+            "name": "uaa"
+        },
+    ]
+}
+```
+### Faculty
+- **Method:** GET
+- **Endpoint:** `/faculty/{id}`
+- **Headers:** `Accept: application/json`
+- **Params:** `search: name`
+- **Response:**
+```json
+{
+    "error": false,
+    "message": "Get faculties success!",
+    "data": [
+        {
+            "id": 4,
+            "name": "Budaya"
+        }
+    ]
+}
+```
+### Program Study
+- **Method:** GET
+- **Endpoint:** `/programStudy/{id}`
+- **Headers:** `Accept: application/json`
+- **Params:** `search: name`
+- **Response:**
+```json
+{
+    "error": false,
+    "message": "Get program studies success!",
+    "data": [
+        {
+            "id": 4,
+            "name": "Budaya"
+        }
+    ]
+}
+```
