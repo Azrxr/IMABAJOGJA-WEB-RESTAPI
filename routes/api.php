@@ -61,6 +61,7 @@ Route::middleware(['api'])->group(function () {
         Route::get('/member/member/{id}', [MemberController::class, 'member'])->name('member');
         Route::get('/member/showDocument', [DocumentController::class, 'showDocument'])->name('showDocument');
         Route::post('/member/uploadDocument', [DocumentController::class, 'uploadDocument'])->name('uploadDocument');
+        Route::delete('/member/deleteDocument/{field}', [DocumentController::class, 'deleteDocument'])->name('deleteDocument');
         Route::post('/member/uploadHomePhoto', [DocumentController::class, 'uploadHomePhoto'])->name('uploadHomePhoto');
         Route::delete('/member/deleteHomePhoto/{id}', [DocumentController::class, 'deleteHomePhoto'])->name('deleteHomePhoto');
 

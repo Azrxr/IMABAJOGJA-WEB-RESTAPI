@@ -41,30 +41,33 @@ class DocumentController extends Controller
         $memberId = $user->member->id;
 
         $validateDocument = $request->validate([
-            'ktp_path' => 'nullable|file|mimes:pdf|max:2048',
-            'kk_path' => 'nullable|file|mimes:pdf|max:2048',
-            'ijazah_path' => 'nullable|file|mimes:pdf|max:2048',
-            'ijazah_skl_path' => 'nullable|file|mimes:pdf|max:2048',
-            'raport_path' => 'nullable|file|mimes:pdf|max:2048',
-            'photo_3x4_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'kk_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
-            'akte_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
-            'skhu_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
-            'raport_legalisir_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_baik_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_rekom_kades_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_keterangan_baik_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_penghasilan_ortu_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_tidak_mampu_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_pajak_bumi_bangunan_path' => 'nullable|file|mimes:pdf|max:2048',
-            'surat_tidak_pdam_path' => 'nullable|file|mimes:pdf|max:2048',
-            'token_listrik_path' => 'nullable|file|mimes:pdf|max:2048',
-            'skck_path' => 'nullable|file|mimes:pdf|max:2048',
-            'sertifikat_prestasi_path' => 'nullable|file|mimes:pdf|max:2048',
-            'foto_keluarga_path' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'kartu_kip_path' => 'nullable|file|mimes:pdf|max:2048',
-            'kartu_pkh_path' => 'nullable|file|mimes:pdf|max:2048',
-            'kartu_kks_path' => 'nullable|file|mimes:pdf|max:2048',
+            'ktp_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'kk_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'ijazah_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'ijazah_skl_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'raport_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'kk_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'akte_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'skhu_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'ijazah_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'raport_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_baik_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_rekom_kades_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_keterangan_baik_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_penghasilan_ortu_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_tidak_mampu_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_pajak_bumi_bangunan_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'surat_tidak_pdam_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'token_listrik_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'skck_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'sertifikat_prestasi_path' => 'sometimes|file|mimes:pdf|max:2048',
+
+            'foto_keluarga_path' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+            'photo_3x4_path' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+            
+            'kartu_kip_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'kartu_pkh_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'kartu_kks_path' => 'sometimes|file|mimes:pdf|max:2048',
         ]);
 
         $document = Document::firstOrNew(['member_id' => $memberId]);
@@ -97,6 +100,71 @@ class DocumentController extends Controller
                 'data' => $document
             ]);
         }
+    }
+
+    public function deleteDocument(Request $request, $field)
+    {
+        $user = User::with('member')->findOrFail(Auth::id());
+        $memberId = $user->member->id;
+
+        $allowedFields = [
+            'ijazah_path',
+            'ktp_path',
+            'kk_path',
+            'ijazah_skl_path',
+            'raport_path',
+            'photo_3x4_path',
+            'kk_legalisir_path',
+            'akte_legalisir_path',
+            'skhu_legalisir_path',
+            'ijazah_legalisir_path',
+            'raport_legalisir_path',
+            'surat_baik_path',
+            'surat_rekom_kades_path',
+            'surat_keterangan_baik_path',
+            'surat_penghasilan_ortu_path',
+            'surat_tidak_mampu_path',
+            'surat_pajak_bumi_bangunan_path',
+            'surat_tidak_pdam_path',
+            'token_listrik_path',
+            'skck_path',
+            'sertifikat_prestasi_path',
+            'foto_keluarga_path',
+            'kartu_kip_path',
+            'kartu_pkh_path',
+            'kartu_kks_path'
+        ];
+        if (!in_array($field, $allowedFields)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Field yang diminta tidak valid!'
+            ], 400);
+        }
+        $document = Document::where('member_id', $memberId)->first();
+
+        if (!$document || !$document->{$field}) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Dokumen tidak ditemukan atau belum diunggah.'
+            ], 404);
+        }
+
+        // Ambil path lengkap dari database
+        $filePath = $document->{$field};
+
+        // Hapus file dari storage hanya jika path ada
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+        }
+
+        // Set field di database menjadi null
+        $document->{$field} = null;
+        $document->save();
+        return response()->json([
+            'error' => false,
+            'message' => 'Dokumen berhasil dihapus!',
+            'data' => $document
+        ]);
     }
 
     public function uploadHomePhoto(Request $request)
@@ -134,11 +202,10 @@ class DocumentController extends Controller
             );
         }
     }
-
     public function deleteHomePhoto(Request $request, $id)
     {
         // Cari foto berdasarkan ID
-        $homePhoto = HomePhoto::find($id);
+        $homePhoto = HomePhoto::findOrFail($id);
 
         if (!$homePhoto) {
             // Jika foto tidak ditemukan
@@ -150,8 +217,10 @@ class DocumentController extends Controller
         }
 
         // Hapus file foto dari storage
-        Storage::disk('public')->delete($homePhoto->photo_img);
-
+        // Pastikan file ada sebelum menghapus
+    if ($homePhoto->photo_img_path && Storage::disk('public')->exists($homePhoto->photo_img_path)) {
+        Storage::disk('public')->delete($homePhoto->photo_img_path);
+    }
         // Hapus data foto dari database
         $homePhoto->delete();
 

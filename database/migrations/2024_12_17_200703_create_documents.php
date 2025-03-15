@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('kk_legalisir_path')->nullable()->comment('path to legalized KK');
             $table->string('akte_legalisir_path')->nullable()->comment('path to legalized Birth Certificate');
             //berkas sekolah
+            $table->string('ijazah_legalisir_path')->nullable()->comment('path to legalized ijazah');
             $table->string('skhu_legalisir_path')->nullable()->comment('path to legalized SKHU');
             $table->string('raport_legalisir_path')->nullable()->comment('path to legalized RAPORT');
             $table->string('surat_baik_path')->nullable()->comment('path to Good Conduct Letter');

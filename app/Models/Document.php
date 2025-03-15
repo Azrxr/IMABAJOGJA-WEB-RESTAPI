@@ -21,6 +21,7 @@ class Document extends Model
         'kk_legalisir_path',
         'akte_legalisir_path',
         //berkas sekolah
+        'ijazah_legalisir_path',
         'skhu_legalisir_path',
         'raport_legalisir_path',
         'surat_baik_path',
