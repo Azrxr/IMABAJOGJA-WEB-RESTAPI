@@ -14,6 +14,125 @@ use App\Models\Faculty;
 
 class StudyPlaneController extends Controller
 {
+
+    public function studyMember()
+    {
+        $member = User::with('member')
+            ->findOrFail(Auth::id())
+            ->member;
+
+        if (!$member) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Anda belum memiliki data member!'
+            ], 400);
+        }
+
+        $memberId = $member->id;
+
+        $studyPlans = StudyMember::where('member_id', $memberId)
+            ->with('university', 'programStudy', 'faculty')
+            ->latest()->first();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Get study current success!',
+            'data' => $studyPlans
+        ]);
+    }
+
+    public function updateStudyMember(Request $request)
+    {
+        // Validasi input
+        $validate = $request->validate([
+            'university_id' => 'required|exists:universities,id',
+            'program_study_id' => 'required|exists:program_studies,id',
+            'faculty_id' => 'required|exists:faculties,id',
+        ]);
+
+        // Ambil member yang sedang login
+        $member = User::with('member')
+            ->findOrFail(Auth::id())
+            ->member;
+
+        if (!$member) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Anda belum memiliki data member!'
+            ], 400);
+        }
+
+        $memberId = $member->id;
+
+        // Ambil study member terbaru
+        $studyMember = StudyMember::where('member_id', $memberId)
+            ->latest()
+            ->first();
+
+        if ($studyMember) {
+            // Jika sudah ada, lakukan update
+            $studyMember->update([
+                'university_id' => $validate['university_id'],
+                'program_study_id' => $validate['program_study_id'],
+                'faculty_id' => $validate['faculty_id']
+            ]);
+        } else {
+            // Jika belum ada, buat baru
+            $studyMember = StudyMember::create([
+                'member_id' => $memberId,
+                'university_id' => $validate['university_id'],
+                'program_study_id' => $validate['program_study_id'],
+                'faculty_id' => $validate['faculty_id']
+            ]);
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Study member updated successfully!',
+            'data' => $studyMember
+        ]);
+    }
+
+    public function deleteStudyMember()
+    {
+        // Ambil member yang sedang login
+        $member = User::with('member')
+            ->findOrFail(Auth::id())
+            ->member;
+
+        if (!$member) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Anda belum memiliki data member!'
+            ], 400);
+        }
+
+        $memberId = $member->id;
+
+        // Ambil study member terbaru
+        $studyMember = StudyMember::where('member_id', $memberId)
+            ->latest()
+            ->first();
+
+        if (!$studyMember) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Study member tidak ditemukan!'
+            ], 404);
+        }
+
+        // Hapus study member dari database
+        $studyMember->delete();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Study member deleted successfully!',
+            'data' => null
+        ]);
+    }
+
+
+
     public function getAllStudyPlans()
     {
         // Ambil semua member yang memiliki study plans
