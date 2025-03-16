@@ -69,6 +69,11 @@ Route::middleware(['api'])->group(function () {
         Route::get('/member/studyPlane', [StudyPlaneController::class, 'index'])->name('studyplane');
         Route::post('/member/studyPlaneAdd', [StudyPlaneController::class, 'studyPlaneAdd'])->name('studyPlaneAdd');
         Route::delete('/member/studyPlaneDelete/{id}', [StudyPlaneController::class, 'studyPlaneDelete'])->name('studyPlaneDelete');
+
+        //studyMember
+        Route::get('/member/studyMember', [StudyPlaneController::class, 'studyMember'])->name('studyMember');
+        Route::post('/member/updateStudyMember', [StudyPlaneController::class, 'updateStudyMember'])->name('updateStudyMember');
+        Route::delete('/member/deleteStudyMember', [StudyPlaneController::class, 'deleteStudyMember'])->name('deleteStudyMember');
     });
     //admin
     Route::middleware('auth:sanctum')->group(function () {
