@@ -57,7 +57,7 @@ Route::middleware(['api'])->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/member/profile', [MemberController::class, 'profile'])->name('profile');
         Route::post('/member/profileUpdate', [MemberController::class, 'profileUpdate'])->name('profileUpdate');
-        Route::post('/member/members', [MemberController::class, 'members'])->name('members');
+        Route::get('/member/members', [MemberController::class, 'members'])->name('members');
         Route::get('/member/member/{id}', [MemberController::class, 'member'])->name('member');
         Route::get('/member/showDocument', [DocumentController::class, 'showDocument'])->name('showDocument');
         Route::post('/member/uploadDocument', [DocumentController::class, 'uploadDocument'])->name('uploadDocument');

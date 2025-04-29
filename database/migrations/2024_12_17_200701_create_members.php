@@ -26,9 +26,9 @@ return new class extends Migration
 
             $table->enum('agama', ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Budha', 'Konghucu', 'Lainnya'])->nullable();
             $table->integer('nisn')->nullable()->comment('opsional');
-            $table->string('tempat');
-            $table->date('tanggal_lahir');
-            $table->enum('gender', ['Laki-laki', 'Perempuan']);
+            $table->string('tempat')->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->enum('gender', ['Laki-laki', 'Perempuan'])->nullable();
             $table->integer('kode_pos')->nullable();
 
             $table->enum('member_type', ['camaba', 'pengurus', 'anggota', 'demissioner', 'istimewa'])->default('camaba');

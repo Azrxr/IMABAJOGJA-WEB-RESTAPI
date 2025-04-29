@@ -142,7 +142,7 @@ class MemberController extends Controller
     {
         $filters = $request->only(['search', 'generation', 'member_type']);
 
-        $members = Member::with([
+        $query = Member::with([
             'province:id,name',
             'regency:id,name',
             'district:id,name',
@@ -151,17 +151,42 @@ class MemberController extends Controller
             'studyMembers.university:id,name',
             'studyMembers.faculty:id,name',
             'studyMembers.programStudy:id,name'
-        ])
-            ->when(isset($filters['search']), function ($query) use ($filters) {
-                $query->where('fullname', 'like', '%' . $filters['search'] . '%');
-            })
-            ->when(isset($filters['generation']), function ($query) use ($filters) {
-                $query->where('generation', $filters['generation']);
-            })
-            ->when(isset($filters['member_type']), function ($query) use ($filters) {
-                $query->where('member_type', $filters['member_type']);
-            })
-            ->paginate(10);
+        ]);
+
+           // Filter berdasarkan nama (search)
+    if ($request->filled('search')) {
+        $query->where('fullname', 'like', '%' . $request->search . '%');
+    }
+
+    // // Filter berdasarkan generasi
+    // if ($request->filled('generation')) {
+    //     $query->where('angkatan', $request->generation);
+    // }
+
+    if ($request->filled('generation')) {
+        $generations = $request->input('generation');
+        if (is_array($generations)) {
+            $query->whereIn('angkatan', $generations);
+        } else {
+            $query->where('angkatan', $generations);
+        }
+    }
+
+    // // Filter berdasarkan tipe member
+    // if ($request->filled('member_type')) {
+    //     $query->where('member_type', $request->member_type);
+    // }
+
+    if ($request->filled('member_type')) {
+        $memberTypes = $request->input('member_type');
+        if (is_array($memberTypes)) {
+            $query->whereIn('member_type', $memberTypes);
+        } else {
+            $query->where('member_type', $memberTypes);
+        }
+    }
+    
+    $members = $query->paginate(10);
 
         if ($request->wantsJson()) {
             return response()->json([
