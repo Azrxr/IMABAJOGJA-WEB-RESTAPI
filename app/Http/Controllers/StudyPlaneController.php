@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MemberStudyResource;
 use App\Models\User;
 use App\Models\Member;
 use App\Models\StudyPlane;
@@ -11,6 +12,7 @@ use App\Models\ProgramStudy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Faculty;
+use App\Models\HomePhoto;
 
 class StudyPlaneController extends Controller
 {
@@ -306,22 +308,39 @@ class StudyPlaneController extends Controller
 
     // ADMIN
 
-    public function adminStudyPlaneAdd(Request $request)
+    public function adminStudyPlaneDelete ($memberId, $studyPlanId)
+    {
+        $member = Member::findOrFail($memberId);
+        $studyPlan = $member->studyPlans()->where('id', $studyPlanId)->firstOrFail();
+        if (!$studyPlan) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Data study plan tidak ditemukan untuk member ini.'
+            ], 404);
+        }
+
+        // Hapus dari database
+        $studyPlan->delete();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Study plan deleted successfully!'
+        ], 200);
+    }
+    public function adminStudyPlaneAdd(Request $request, $memberId)
     {
         // Validasi input
         $validate = $request->validate([
-            'member_id' => 'required|exists:members,id',
             'university_id' => 'required|exists:universities,id',
             'program_study_id' => 'required|exists:program_studies,id',
-            'status' => 'nullable|in:pending,accepted,rejected'
         ]);
 
         // Simpan study plan baru (tanpa batasan universitas & program studi)
         $studyPlan = StudyPlane::create([
-            'member_id' => $validate['member_id'],
+            'member_id' => $memberId,
             'university_id' => $validate['university_id'],
             'program_study_id' => $validate['program_study_id'],
-            'status' => $validate['status'],
+            'status' => 'pending',
         ]);
 
         return response()->json([
@@ -331,33 +350,47 @@ class StudyPlaneController extends Controller
         ], 201);
     }
 
-    public function adminStudyPlaneUpdate(Request $request, $id)
+    public function adminStudyPlaneUpdate(Request $request, $memberId, $studyPlanId)
     {
+        $member = Member::findOrFail($memberId);
+        $studyPlan = $member->studyPlans()->where('id', $studyPlanId)->firstOrFail();
+        if (!$studyPlan) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Data study plan tidak ditemukan untuk member ini.'
+            ], 404);
+        }
+
         // Validasi input
         $validate = $request->validate([
-            'university_id' => 'required|exists:universities,id',
-            'program_study_id' => 'required|exists:program_studies,id',
-            'status' => 'nullable|in:pending,accepted,rejected'
+            'university_id' => 'sometimes|exists:universities,id',
+            'program_study_id' => 'sometimes|exists:program_studies,id',
+            'status' => 'sometimes|in:pending,accepted,rejected,active',
         ]);
 
-        // Cari study plan berdasarkan ID
-        $studyPlan = StudyPlane::findOrFail($id);
 
-        // Update data
-        $studyPlan->update([
-            'university_id' => $validate['university_id'],
-            'program_study_id' => $validate['program_study_id'],
-            'status' => $validate['status'],
-        ]);
-        if ($validate['status'] == 'accepted') {
-            StudyMember::create([
-                'member_id' => $studyPlan->member_id,
-                'university_id' => $validate['university_id'],
-                'program_study_id' => $validate['program_study_id'],
-            ]);
-            Member::where('id', $studyPlan->member_id)->update([
-                'is_studyng' => true
-            ]);
+        // Jika status yang dikirim adalah 'active', ubah semua yang lain jadi 'accepted' terlebih dahulu
+        if (($validate['status'] ?? '') === 'active') {
+            $member->studyPlans()
+                ->where('id', '!=', $studyPlan->id)
+                ->where('status', 'active')
+                ->update(['status' => 'pending']);
+        }
+        $studyPlan->update($validate);
+
+        if (($validate['status'] ?? '') === 'active') {
+            // Pastikan university dan program_study disediakan
+            if (isset($validate['university_id']) && isset($validate['program_study_id'])) {
+                StudyMember::updateOrCreate(
+                    ['member_id' => $memberId], // Condition (unique key)
+                    [
+                        'university_id' => $validate['university_id'],
+                        'program_study_id' => $validate['program_study_id'],
+                    ]
+                );
+
+                $member->update(['is_studyng' => true]);
+            }
         }
 
         return response()->json([
@@ -367,17 +400,117 @@ class StudyPlaneController extends Controller
         ], 200);
     }
 
-    public function adminStudyPlaneDelete($id)
+    public function adminUpdateStudyMember(Request $request, $memberId)
     {
-        // Cari study plan berdasarkan ID
-        $studyPlan = StudyPlane::findOrFail($id);
+        // Validasi input
+        $validate = $request->validate([
+            'university_id' => 'required|exists:universities,id',
+            'program_study_id' => 'required|exists:program_studies,id',
+            'faculty_id' => 'sometimes|exists:faculties,id',
+        ]);
 
-        // Hapus study plan dari database
-        $studyPlan->delete();
+        // Ambil member berdasarkan ID
+        $member = Member::findOrFail($memberId);
+
+        // Update atau buat study member
+        $studyMember = StudyMember::updateOrCreate(
+            ['member_id' => $member->id],
+            [
+                'university_id' => $validate['university_id'],
+                'program_study_id' => $validate['program_study_id'],
+                'faculty_id' => $validate['faculty_id']
+            ]
+        );
 
         return response()->json([
             'error' => false,
-            'message' => 'Study plan deleted successfully by admin!'
-        ], 200);
+            'message' => 'Study member updated successfully!',
+            'data' => $studyMember
+        ]);
+    }
+
+    private function addExtraData($member, $filled, $total, $hasHomePhotos = false, $homePhotos = null)
+    {
+        $member->berkas_progress = "$filled / $total";
+        $member->berkas_lengkap = $filled === $total && $hasHomePhotos;
+        $member->status_kuliah = $member->studyMember ? 'sudah' : ($member->studyPlane ? 'rencana' : 'belum');
+        $member->university = $member->studyMember->university->name ?? $member->studyPlane->university->name ?? null;
+        $member->has_home_photos = $hasHomePhotos;
+        $member->home_photos = $homePhotos; // ✅ Include home_photos full data
+        return $member;
+    }
+
+    public function getStudyMembers(Request $request)
+    {
+        $query = Member::with([
+            'user',
+            'studyPlans.university:id,name',
+            'studyPlans.programStudy:id,name',
+            'studyMembers.university:id,name',
+            'studyMembers.programStudy:id,name',
+            'documents.homePhoto'
+        ]);
+
+        // FILTER: search by fullname
+        if ($request->filled('search')) {
+            $query->where('fullname', 'like', '%' . $request->search . '%');
+        }
+
+        // FILTER: angkatan
+        if ($request->filled('angkatan')) {
+            $angkatan = $request->angkatan;
+            $query->whereIn('angkatan', is_array($angkatan) ? $angkatan : [$angkatan]);
+        }
+
+        // FILTER: status kuliah
+        if ($request->filled('status_kuliah')) {
+            $status = $request->status_kuliah;
+
+            $query->when(
+                $status === 'sudah',
+                fn($q) =>
+                $q->whereHas('studyMembers')
+            )->when(
+                $status === 'rencana',
+                fn($q) =>
+                $q->whereHas('studyPlans', fn($q) => $q->where('status', 'pending'))
+                    ->whereDoesntHave('studyMembers')
+            )->when(
+                $status === 'belum',
+                fn($q) =>
+                $q->whereDoesntHave('studyPlans')->whereDoesntHave('studyMembers')
+            );
+        }
+
+        // FILTER: university_id
+        if ($request->filled('university_id')) {
+            $univId = $request->university_id;
+            $query->where(function ($q) use ($univId) {
+                $q->whereHas('studyPlans', fn($q) => $q->where('university_id', $univId))
+                    ->orWhereHas('studyMembers', fn($q) => $q->where('university_id', $univId));
+            });
+        }
+
+        // Get paginated result
+        $members = $query->paginate(10);
+
+        return response()->json([
+            'error' => false,
+            'message' => 'List study members success!',
+            'data' => [
+                'current_page' => $members->currentPage(),
+                'data' => MemberStudyResource::collection($members),
+                'first_page_url' => $members->url(1),
+                'from' => $members->firstItem(),
+                'last_page' => $members->lastPage(),
+                'last_page_url' => $members->url($members->lastPage()),
+                'next_page_url' => $members->nextPageUrl(),
+                'path' => $members->path(),
+                'per_page' => $members->perPage(),
+                'prev_page_url' => $members->previousPageUrl(),
+                'to' => $members->lastItem(),
+                'total' => $members->total(),
+            ]
+        ]);
     }
 }

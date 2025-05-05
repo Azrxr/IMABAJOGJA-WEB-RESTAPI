@@ -77,8 +77,8 @@ Route::middleware(['api'])->group(function () {
     });
     //admin
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/admin/profile_admin', [AdminController::class, 'profile_admin'])->name('profile_admin');
-        Route::post('/admin/updateProfile', [AdminController::class, 'pdateProfile'])->name('updateProfile');
+        Route::get('/admin/profile', [AdminController::class, 'profile_admin'])->name('profile_admin');
+        Route::post('/admin/updateProfile', [AdminController::class, 'updateProfile'])->name('updateProfile');
 
         // organozationProfile
         Route::post('/imaba/profileUpdate', [HomeController::class, 'editProfile'])->name('editProfile');
@@ -89,10 +89,14 @@ Route::middleware(['api'])->group(function () {
         //studyplane
         Route::get('/admin/getAllStudyPlans', [StudyPlaneController::class, 'getAllStudyPlans'])->name('getAllStudyPlans');
         Route::post('/admin/studyPlaneAdd', [StudyPlaneController::class, 'adminStudyPlaneAdd']);
-        Route::post('/admin/studyPlaneUpdate/{id}', [StudyPlaneController::class, 'adminStudyPlaneUpdate']);
-        Route::delete('/admin/studyPlaneDelete/{id}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
-
+        Route::post('/admin/study/{memberId}/planeUpdate/{studyPlanId}', [StudyPlaneController::class, 'adminStudyPlaneUpdate']);
+        Route::delete('/admin/study/{memberId}/planeDelete/{studyPlanId}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
+        Route::get('/admin/study/getStudyMembers', [StudyPlaneController::class, 'getStudyMembers'])->name('getStudyMembers');
+        Route::post('/admin/study/updateStudyMember/{memberId}', [StudyPlaneController::class, 'adminUpdateStudyMember'])->name('adminUpdateStudyMember');
         //member
         Route::post('/admin/createMember', [MemberController::class, 'createMember'])->name('createMember');
+        Route::post('/admin/updateMember/{id}', [MemberController::class, 'updateMember'])->name('updateMember');
+        Route::post('/admin/updateMember/photo/{id}', [MemberController::class, 'updateMember'])->name('updateMember');
+        Route::delete('/admin/deleteMember/{id}', [MemberController::class, 'deleteMember'])->name('deleteMember');
     });
 });

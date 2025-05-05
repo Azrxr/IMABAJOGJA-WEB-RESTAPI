@@ -55,7 +55,7 @@ class AdminController extends Controller
             'fullname' => 'sometimes|string|max:255',
             'phone_number' => 'sometimes|string|max:255',
             'profile_img_path' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'province_id' => 'sometimes|integer|exists:provinces,id',
+            'provincy_id' => 'sometimes|integer|exists:provincies,id',
             'regency_id' => 'sometimes|integer|exists:regencies,id',
             'district_id' => 'sometimes|integer|exists:districts,id',
             'full_address' => 'sometimes|string|max:255',
@@ -106,7 +106,7 @@ class AdminController extends Controller
 
             // Simpan foto baru
             $img = $req->file('profile_img_path');
-            $filename = date('Y-m-d') . '_' . $user->id . '_' . $user->username . '.' . $img->getClientOriginalExtension();
+            $filename = now()->format('Ymd_His') . '_' . $user->id . '_' . $user->username . '.' . $img->getClientOriginalExtension();
             $path = 'photo_admin/' . $filename;
 
             Storage::disk('public')->put($path, file_get_contents($img));

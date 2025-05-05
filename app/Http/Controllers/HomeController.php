@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Campuse;
 use App\Models\Province;
 use App\Models\University;
 use Illuminate\Support\Str;
-use App\Models\ProgramStudy;
 use Illuminate\Http\Request;
 use App\Models\OrganizationFile;
 use App\Models\OrganizationProfile;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
