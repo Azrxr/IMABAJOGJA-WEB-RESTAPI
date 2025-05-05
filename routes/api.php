@@ -11,6 +11,7 @@ use App\Http\Controllers\auth\LoginController;
 use App\Http\Controllers\StudyPlaneController;
 use App\Http\Controllers\auth\RegisterController;
 use App\Http\Controllers\WilayahController;
+use PhpParser\Node\Expr\PostDec;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +94,13 @@ Route::middleware(['api'])->group(function () {
         Route::delete('/admin/study/{memberId}/planeDelete/{studyPlanId}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
         Route::get('/admin/study/getStudyMembers', [StudyPlaneController::class, 'getStudyMembers'])->name('getStudyMembers');
         Route::post('/admin/study/updateStudyMember/{memberId}', [StudyPlaneController::class, 'adminUpdateStudyMember'])->name('adminUpdateStudyMember');
+
+        //document
+        Route::post('/admin/document/{memberId}/update/{docId}', [DocumentController::class, 'adminUpdateDocument'])->name('adminUpdateDocument');
+        Route::delete('/admin/document/{memberId}/delete/{docId}', [DocumentController::class, 'adminDeleteDocument'])->name('adminDeleteDocument');
+        Route::post('/admin/document/{memberId}/uploadHome', [DocumentController::class, 'adminUploadHomePhoto'])->name('adminUploadHomePhoto');
+        Route::post('/admin/document/{Id}/deleteHome', [DocumentController::class, 'adminDeleteHomePhoto'])->name('adminDeleteHomePhoto');
+        
         //member
         Route::post('/admin/createMember', [MemberController::class, 'createMember'])->name('createMember');
         Route::post('/admin/updateMember/{id}', [MemberController::class, 'updateMember'])->name('updateMember');
