@@ -138,7 +138,8 @@ class MemberController extends Controller
         ]);
     }
 
-    public function members(Request $request)
+    //asal
+    public function _members(Request $request)
     {
         $filters = $request->only(['search', 'generation', 'member_type']);
 
@@ -358,7 +359,7 @@ class MemberController extends Controller
 
         ]);
         // Ambil data user dan members
-        
+
         $user = User::findOrFail($member->user_id);
 
         // Perbarui data pengguna di tabel users
@@ -420,7 +421,7 @@ class MemberController extends Controller
             ],
         ]);
     }
-    
+
     public function deleteMember($id)
     {
         $member = Member::findOrFail($id);
@@ -436,5 +437,137 @@ class MemberController extends Controller
             'message' => 'Member deleted successfully',
             'data' => null
         ]);
+    }
+
+    public function members(Request $request)
+    {
+        $filters = $request->only(['search', 'generation', 'member_type']);
+
+        $query = Member::with([
+            'province:id,name',
+            'regency:id,name',
+            'district:id,name',
+            'studyPlans.university:id,name',
+            'studyPlans.programStudy:id,name',
+            'studyMembers.university:id,name',
+            'studyMembers.faculty:id,name',
+            'studyMembers.programStudy:id,name',
+            'documents.homePhoto',
+        ]);
+
+        // Filter berdasarkan nama (search)
+        if ($request->filled('search')) {
+            $query->where('fullname', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('generation')) {
+            $generations = $request->input('generation');
+            if (is_array($generations)) {
+                $query->whereIn('angkatan', $generations);
+            } else {
+                $query->where('angkatan', $generations);
+            }
+        }
+
+        // FILTER: status kuliah
+        if ($request->filled('status_kuliah')) {
+            $status = $request->status_kuliah;
+
+            $query->when(
+                $status === 'sudah',
+                fn($q) =>
+                $q->whereHas('studyMembers')
+            )->when(
+                $status === 'rencana',
+                fn($q) =>
+                $q->whereHas('studyPlans', fn($q) => $q->where('status', 'pending'))
+                    ->whereDoesntHave('studyMembers')
+            )->when(
+                $status === 'belum',
+                fn($q) =>
+                $q->whereDoesntHave('studyPlans')->whereDoesntHave('studyMembers')
+            );
+        }
+
+        // FILTER: university_id
+        if ($request->filled('university_id')) {
+            $univId = $request->university_id;
+            $query->where(function ($q) use ($univId) {
+                $q->whereHas('studyPlans', fn($q) => $q->where('university_id', $univId))
+                    ->orWhereHas('studyMembers', fn($q) => $q->where('university_id', $univId));
+            });
+        }
+
+        if ($request->filled('member_type')) {
+            $memberTypes = $request->input('member_type');
+            if (is_array($memberTypes)) {
+                $query->whereIn('member_type', $memberTypes);
+            } else {
+                $query->where('member_type', $memberTypes);
+            }
+        }
+
+        $totalQuery = clone $query;
+
+        $totalMember = $totalQuery->count();
+        $totalDemissioner = (clone $query)->where('member_type', 'demissioner')->count();
+        $totalProspective = (clone $query)->where('member_type', 'camaba')->count();
+        $totalManagement = (clone $query)->where('member_type', 'pengurus')->count();
+        $totalRegular = (clone $query)->where('member_type', 'anggota')->count();
+        $totalSpecial = (clone $query)->where('member_type', 'istimewa')->count();
+
+        $members = $query->paginate(10);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'error' => false,
+                'message' => 'List members success!',
+                'total_member' => $totalMember,
+                'total_member_demissioner' => $totalDemissioner,
+                'total_member_prospective' => $totalProspective,
+                'total_member_management' => $totalManagement,
+                'total_member_regular' => $totalRegular,
+                'total_member_special' => $totalSpecial,
+                'data' =>
+                [
+                    'current_page' => $members->currentPage(),
+                    'data' => MembersResource::collection($members), // Menggunakan Resource
+                    'first_page_url' => $members->url(1),
+                    'from' => $members->firstItem(),
+                    'last_page' => $members->lastPage(),
+                    'last_page_url' => $members->url($members->lastPage()),
+                    'next_page_url' => $members->nextPageUrl(),
+                    'path' => $members->path(),
+                    'per_page' => $members->perPage(),
+                    'prev_page_url' => $members->previousPageUrl(),
+                    'to' => $members->lastItem(),
+                    'total' => $members->total(),
+                ]
+            ]);
+        }
+    }
+
+    public function memberDetail(Request $request, $id)
+    {
+        // $member = Member::findOrFail($id);
+        $member = Member::with([
+            'province:id,name',
+            'regency:id,name',
+            'district:id,name',
+            'studyPlans.university:id,name',
+            'studyPlans.programStudy:id,name',
+            'studyMembers.university:id,name',
+            'studyMembers.faculty:id,name',
+            'studyMembers.programStudy:id,name',
+            'documents.homePhoto',
+        ])->findOrFail($id);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'error' => false,
+                'message' => 'detail member success!',
+                'data' => new MembersResource($member)
+            ]);
+        }
     }
 }

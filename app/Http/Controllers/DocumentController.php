@@ -234,7 +234,7 @@ class DocumentController extends Controller
     }
 
     // ADMIN
-    public function adminUpdateDocument(Request $request, $memberId, $docId)
+    public function adminUploadDocument(Request $request, $memberId, $docId)
     {
         $member = Member::findOrFail($memberId);
         $document = $member->documents()->where('id', $docId)->firstOrNew();
@@ -298,7 +298,7 @@ class DocumentController extends Controller
 
     public function adminDeleteDocument($memberId, $field)
     {
-        $memberId = Member::findOrFail($memberId);
+        // $memberId = Member::findOrFail($memberId);
 
         $allowedFields = [
             'ijazah_path',

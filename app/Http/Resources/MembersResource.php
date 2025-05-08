@@ -14,7 +14,23 @@ class MembersResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $document = $this->documents->first(); // 1 dokumen per member
+
+        // Hitung kelengkapan dokumen
+        $exclude = ['id', 'member_id', 'created_at', 'updated_at'];
+        $attributes = $document ? collect($document->getAttributes())->except($exclude) : collect([]);
+        $filled = $attributes->filter(fn($val) => !is_null($val))->count();
+        $total = $attributes->count();
+        $hasHomePhotos = $document && $document->homePhotos && $document->homePhotos->isNotEmpty();
+
         return [
+
+            'berkas_progress' => "$filled / $total",
+            'berkas_lengkap' => $filled === $total && $hasHomePhotos,
+            'has_home_photos' => $hasHomePhotos,
+            'status_kuliah' => $this->studyMembers->isNotEmpty() ? 'sudah' :
+                               ($this->studyPlans->isNotEmpty() ? 'rencana' : 'belum'),
+
             'id' => $this->id,
             'user_id' => $this->user_id,
             'fullname' => $this->fullname,
@@ -45,6 +61,8 @@ class MembersResource extends JsonResource
 
             'study_plans' => $this->studyPlans->map(function ($plan) {
             return [
+                'member_id' => $plan->member_id ? $plan->member_id : null,
+                'study_plan_id' => $plan->id ? $plan->id : null,
                 'university' => $plan->university ? $plan->university->name : null,
                 'universityId' => $plan->university ? $plan->university->id : null,
                 'program_study' => $plan->programStudy ? $plan->programStudy->name : null,
@@ -54,6 +72,8 @@ class MembersResource extends JsonResource
             }),
             'study_members' => $this->studyMembers->map(function ($member) {
             return [
+                'member_id' => $member->member_id ? $member->member_id : null,
+                'study_member_id' => $member->id ? $member->id : null,
                 'university' => $member->university ? $member->university->name : null,
                 'universityId' => $member->university ? $member->university->id : null,
                 'faculty' => $member->faculty ? $member->faculty->name : null,
@@ -64,6 +84,7 @@ class MembersResource extends JsonResource
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'documents' => $this->documents,
         ];
     }
 }

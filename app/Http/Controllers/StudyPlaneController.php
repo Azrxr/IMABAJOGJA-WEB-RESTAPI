@@ -32,14 +32,14 @@ class StudyPlaneController extends Controller
 
         $memberId = $member->id;
 
-        $studyPlans = StudyMember::where('member_id', $memberId)
+        $study = StudyMember::where('member_id', $memberId)
             ->with('university', 'programStudy', 'faculty')
             ->latest()->first();
 
         return response()->json([
             'error' => false,
             'message' => 'Get study current success!',
-            'data' => $studyPlans
+            'data' => $study
         ]);
     }
 
@@ -291,7 +291,6 @@ class StudyPlaneController extends Controller
         ], 201);
     }
 
-
     public function studyPlaneDelete($id)
     {
         // Cari study plan berdasarkan ID
@@ -327,6 +326,7 @@ class StudyPlaneController extends Controller
             'message' => 'Study plan deleted successfully!'
         ], 200);
     }
+    
     public function adminStudyPlaneAdd(Request $request, $memberId)
     {
         // Validasi input
@@ -348,6 +348,23 @@ class StudyPlaneController extends Controller
             'message' => 'Study plan added successfully by admin!',
             'data' => $studyPlan
         ], 201);
+    }
+
+    public function adminGetStudyPlane($memberId)
+    {
+        // Ambil member berdasarkan ID
+        $member = Member::findOrFail($memberId);
+
+        // Ambil semua study plans untuk member ini
+        $studyPlans = $member->studyPlans()
+            ->with('university', 'programStudy')
+            ->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Get study plans success!',
+            'data' => $studyPlans
+        ]);
     }
 
     public function adminStudyPlaneUpdate(Request $request, $memberId, $studyPlanId)
@@ -461,7 +478,7 @@ class StudyPlaneController extends Controller
             $angkatan = $request->angkatan;
             $query->whereIn('angkatan', is_array($angkatan) ? $angkatan : [$angkatan]);
         }
-
+//
         // FILTER: status kuliah
         if ($request->filled('status_kuliah')) {
             $status = $request->status_kuliah;

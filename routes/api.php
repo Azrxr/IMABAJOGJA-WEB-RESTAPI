@@ -89,19 +89,22 @@ Route::middleware(['api'])->group(function () {
 
         //studyplane
         Route::get('/admin/getAllStudyPlans', [StudyPlaneController::class, 'getAllStudyPlans'])->name('getAllStudyPlans');
-        Route::post('/admin/studyPlaneAdd', [StudyPlaneController::class, 'adminStudyPlaneAdd']);
+        Route::post('/admin/study/{memberId}/PlaneAdd', [StudyPlaneController::class, 'adminStudyPlaneAdd']);
         Route::post('/admin/study/{memberId}/planeUpdate/{studyPlanId}', [StudyPlaneController::class, 'adminStudyPlaneUpdate']);
         Route::delete('/admin/study/{memberId}/planeDelete/{studyPlanId}', [StudyPlaneController::class, 'adminStudyPlaneDelete']);
         Route::get('/admin/study/getStudyMembers', [StudyPlaneController::class, 'getStudyMembers'])->name('getStudyMembers');
         Route::post('/admin/study/updateStudyMember/{memberId}', [StudyPlaneController::class, 'adminUpdateStudyMember'])->name('adminUpdateStudyMember');
+       
+        Route::get('/admin/study/getPlane/{memberId}', [StudyPlaneController::class, 'adminGetStudyPlane'])->name('adminGetStudyPlans');
 
         //document
-        Route::post('/admin/document/{memberId}/update/{docId}', [DocumentController::class, 'adminUpdateDocument'])->name('adminUpdateDocument');
-        Route::delete('/admin/document/{memberId}/delete/{docId}', [DocumentController::class, 'adminDeleteDocument'])->name('adminDeleteDocument');
+        Route::post('/admin/document/{memberId}/upload/{docId}', [DocumentController::class, 'adminUploadDocument'])->name('adminUpdateDocument');
+        Route::delete('/admin/document/{memberId}/delete/{field}', [DocumentController::class, 'adminDeleteDocument'])->name('adminDeleteDocument');
         Route::post('/admin/document/{memberId}/uploadHome', [DocumentController::class, 'adminUploadHomePhoto'])->name('adminUploadHomePhoto');
-        Route::post('/admin/document/{Id}/deleteHome', [DocumentController::class, 'adminDeleteHomePhoto'])->name('adminDeleteHomePhoto');
+        Route::delete('/admin/document/{Id}/deleteHome', [DocumentController::class, 'adminDeleteHomePhoto'])->name('adminDeleteHomePhoto');
         
         //member
+        Route::get('/admin/memberDetail/{id}', [MemberController::class, 'memberDetail'])->name('memberDetail');
         Route::post('/admin/createMember', [MemberController::class, 'createMember'])->name('createMember');
         Route::post('/admin/updateMember/{id}', [MemberController::class, 'updateMember'])->name('updateMember');
         Route::post('/admin/updateMember/photo/{id}', [MemberController::class, 'updateMember'])->name('updateMember');
