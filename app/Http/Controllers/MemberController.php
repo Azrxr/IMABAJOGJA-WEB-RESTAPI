@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Member;
+use App\Models\StudyPlane;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -493,8 +494,22 @@ class MemberController extends Controller
         if ($request->filled('university_id')) {
             $univId = $request->university_id;
             $query->where(function ($q) use ($univId) {
-                $q->whereHas('studyPlans', fn($q) => $q->where('university_id', $univId))
-                    ->orWhereHas('studyMembers', fn($q) => $q->where('university_id', $univId));
+                $q->whereHas('studyPlans', fn($q) => $q->where('university_id', $univId));
+            });
+        }
+
+        //filter status study plan
+        if ($request->filled('study_plan_status')) {
+            $status = $request->study_plan_status;
+            $query->whereHas('studyPlans', function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
+
+        if ($request->filled('program_study_id')) {
+            $progId = $request->study_member_id;
+            $query->where(function ($q) use ($progId) {
+                $q->whereHas('studyPlans', fn($q) => $q->where('program_study_id', $progId));
             });
         }
 
@@ -516,7 +531,23 @@ class MemberController extends Controller
         $totalRegular = (clone $query)->where('member_type', 'anggota')->count();
         $totalSpecial = (clone $query)->where('member_type', 'istimewa')->count();
 
+        $filteredMemberIds = (clone $query)->pluck('id'); // Ambil ID member hasil filter
+
+        $totalStudyPlan = StudyPlane::whereIn('member_id', $filteredMemberIds)->count();
+        $totalPlanPending = StudyPlane::whereIn('member_id', $filteredMemberIds)->where('status', 'pending')->count();
+        $totalPlanAccepted = StudyPlane::whereIn('member_id', $filteredMemberIds)->where('status', 'accepted')->count();
+        $totalPlanRejected = StudyPlane::whereIn('member_id', $filteredMemberIds)->where('status', 'rejected')->count();
+        $totalPlanActive = StudyPlane::whereIn('member_id', $filteredMemberIds)->where('status', 'active')->count();
+        $totalUnivPlan = StudyPlane::distinct('university_id')->count('university_id');
+
         $members = $query->paginate(10);
+
+        // Auto-create document jika belum ada
+        foreach ($members as $member) {
+            if (!$member->documents()->exists()) {
+                $member->documents()->create(['member_id' => $member->id]);
+            }
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -528,6 +559,13 @@ class MemberController extends Controller
                 'total_member_management' => $totalManagement,
                 'total_member_regular' => $totalRegular,
                 'total_member_special' => $totalSpecial,
+
+                'total_study_plan' => $totalStudyPlan,
+                'total_plan_pending' => $totalPlanPending,
+                'total_plan_accepted' => $totalPlanAccepted,
+                'total_plan_rejected' => $totalPlanRejected,
+                'total_plan_active' => $totalPlanActive,
+                'total_univ_plan' => $totalUnivPlan,
                 'data' =>
                 [
                     'current_page' => $members->currentPage(),

@@ -97,6 +97,7 @@ Route::middleware(['api'])->group(function () {
        
         Route::get('/admin/study/getPlane/{memberId}', [StudyPlaneController::class, 'adminGetStudyPlane'])->name('adminGetStudyPlans');
 
+        Route::get('/admin/study/getStudyPlanAnalysis', [StudyPlaneController::class, 'getStudyPlanAnalysis'])->name('getStudyPlanAnalysis');
         //document
         Route::post('/admin/document/{memberId}/upload/{docId}', [DocumentController::class, 'adminUploadDocument'])->name('adminUpdateDocument');
         Route::delete('/admin/document/{memberId}/delete/{field}', [DocumentController::class, 'adminDeleteDocument'])->name('adminDeleteDocument');

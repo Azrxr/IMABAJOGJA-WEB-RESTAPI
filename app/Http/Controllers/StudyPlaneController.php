@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\MemberStudyResource;
 use App\Models\User;
 use App\Models\Member;
+use App\Models\Faculty;
+use App\Models\HomePhoto;
 use App\Models\StudyPlane;
 use App\Models\University;
 use App\Models\StudyMember;
 use App\Models\ProgramStudy;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Faculty;
-use App\Models\HomePhoto;
+use App\Http\Resources\MemberStudyResource;
 
 class StudyPlaneController extends Controller
 {
@@ -132,7 +133,6 @@ class StudyPlaneController extends Controller
             'data' => null
         ]);
     }
-
 
 
     public function getAllStudyPlans()
@@ -307,7 +307,7 @@ class StudyPlaneController extends Controller
 
     // ADMIN
 
-    public function adminStudyPlaneDelete ($memberId, $studyPlanId)
+    public function adminStudyPlaneDelete($memberId, $studyPlanId)
     {
         $member = Member::findOrFail($memberId);
         $studyPlan = $member->studyPlans()->where('id', $studyPlanId)->firstOrFail();
@@ -326,7 +326,7 @@ class StudyPlaneController extends Controller
             'message' => 'Study plan deleted successfully!'
         ], 200);
     }
-    
+
     public function adminStudyPlaneAdd(Request $request, $memberId)
     {
         // Validasi input
@@ -478,7 +478,6 @@ class StudyPlaneController extends Controller
             $angkatan = $request->angkatan;
             $query->whereIn('angkatan', is_array($angkatan) ? $angkatan : [$angkatan]);
         }
-//
         // FILTER: status kuliah
         if ($request->filled('status_kuliah')) {
             $status = $request->status_kuliah;
@@ -528,6 +527,39 @@ class StudyPlaneController extends Controller
                 'to' => $members->lastItem(),
                 'total' => $members->total(),
             ]
+        ]);
+    }
+
+    public function getStudyPlanAnalysis()
+    {
+        $universities = StudyPlane::with(['university:id,name', 'programStudy:id,name'])
+            ->get()
+            ->groupBy('university_id')
+            ->map(function ($items, $universityId) {
+                $universityName = optional($items->first()->university)->name;
+
+                // Group by program_study_id di dalam universitas
+                $programStudies = $items->groupBy('program_study_id')->map(function ($plans, $progId) {
+                    return [
+                        'program_study_id' => $progId,
+                        'program_study_name' => optional($plans->first()->programStudy)->name,
+                        'total' => $plans->count(),
+                    ];
+                })->values();
+
+                return [
+                    'university_id' => $universityId,
+                    'university_name' => $universityName,
+                    'total' => $items->count(),
+                    'program_studies' => $programStudies
+                ];
+            })->values();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Study plan analysis loaded successfully.',
+            'total_study_plans' => StudyPlane::count(),
+            'data' => $universities
         ]);
     }
 }
