@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Member;
 use App\Models\StudyPlane;
+use App\Models\StudyMember;
 use Illuminate\Http\Request;
+use App\Exports\MembersExport;
+use App\Imports\MembersImport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Resources\MembersResource;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Storage;
@@ -219,6 +223,13 @@ class MemberController extends Controller
         }
     }
 
+    public function exportMember(Request $request)
+    {
+        $filters = $request->only(['angkatan', 'member_type']);
+        return Excel::download(new MembersExport($filters), 'members.xlsx');
+        
+    }
+
     public function member(Request $request, $id)
     {
         // $member = Member::findOrFail($id);
@@ -242,10 +253,36 @@ class MemberController extends Controller
         }
     }
 
+    public function importMemberExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        $import = new MembersImport();
+        Excel::import($import, $request->file('file'));
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Import finished',
+            'success_count' => count($import->results['success']),
+            'error_count' => count($import->results['errors']),
+            'success_data' => $import->results['success'],
+            'error_data' => $import->results['errors'],
+        ]);
+    }
+
+
     public function createMember(Request $request)
     {
         $validatedData = $request->validate([
-            'members' => 'required|array|min:1', // Harus array dan minimal ada 1 data
+            'members' => 'required|array|min:1',
+            // Optional User Fields
+            'members.*.username' => 'nullable|string|max:255',
+            'members.*.email' => 'nullable|string|email|max:255',
+            'members.*.password' => 'nullable|string|min:8',
+
+            // Member Fields
             'members.*.no_member' => 'required|string|max:255',
             'members.*.angkatan' => 'required|integer',
             'members.*.fullname' => 'required|string|max:255',
@@ -254,79 +291,94 @@ class MemberController extends Controller
             'members.*.regency_id' => 'required|integer|exists:regencies,id',
             'members.*.district_id' => 'required|integer|exists:districts,id',
             'members.*.full_address' => 'required|string|max:255',
-            'members.*.agama' => 'required|string|in:islam,kristen,katolik,hindu,budha,konghucu,lainnya|max:255',
-            'members.*.member_type' => 'required|string|in:camaba,pengurus,anggota,demissioner,istimewa|max:255',
+            'members.*.agama' => 'required|string|max:255',
+            'members.*.member_type' => 'required|string|max:255',
             'members.*.nisn' => 'required|string|max:255',
             'members.*.tempat' => 'required|string|max:255',
             'members.*.tanggal_lahir' => 'required|date',
-            'members.*.gender' => 'required|string|in:male,female|max:255',
+            'members.*.gender' => 'required|string|max:255',
             'members.*.kode_pos' => 'required|string|max:255',
             'members.*.scholl_origin' => 'required|string|max:255',
             'members.*.tahun_lulus' => 'required|integer',
-            'members.*.is_studyng' => 'required|boolean',
+            'members.*.is_studyng' => 'nullable|boolean',
+
+            // Optional Study
+            'members.*.university_id' => 'nullable|integer|exists:universities,id',
+            'members.*.faculty_id' => 'nullable|integer|exists:faculties,id',
+            'members.*.program_study_id' => 'nullable|integer|exists:program_studies,id',
         ]);
 
         DB::beginTransaction();
         try {
-            $createdMembers = [];
+            $results = [];
 
-            foreach ($validatedData['members'] as $memberData) {
-                // Buat user baru
-                $existingMember = Member::where('no_member', $memberData['no_member'])->first();
+            foreach ($validatedData['members'] as $data) {
+                $noMember = $data['no_member'];
 
-                if ($existingMember) {
-                    // Jika member sudah ada, update data
-                    $existingMember->update($memberData);
-                    $user = $existingMember->user;
-                    $message = "updated";
-                } else {
+                // Cari atau buat Member
+                $member = Member::firstOrNew(['no_member' => $noMember]);
+
+                // Handle user
+                if (!$member->user_id) {
+                    // Buat user default jika user_id kosong
                     $user = User::create([
-                        'email' => $memberData['no_member'] . '@example.com',
-                        'username' => $memberData['no_member'],
-                        'password' => Hash::make('Pass' . $memberData['no_member']),
-                        'role' => 'member',
+                        'username' => $data['username'] ?? $noMember,
+                        'email' => $data['email'] ?? "{$noMember}@example.com",
+                        'password' => Hash::make($data['password'] ?? "Pass{$noMember}"),
+                        'role' => $data['role'] ?? 'member',
                     ]);
-
-                    // Buat member baru
-                    $existingMember = Member::create(array_merge($memberData, [
-                        'user_id' => $user->id,
-                    ]));
-                    $message = "created";
+                    $member->user_id = $user->id;
+                } else {
+                    // Update user jika field disediakan
+                    $user = User::find($member->user_id);
+                    $user->username = $data['username'] ?? $user->username;
+                    $user->email = $data['email'] ?? $user->email;
+                    if (!empty($data['password'])) {
+                        $user->password = Hash::make($data['password']);
+                    }
+                    $user->role = $data['role'] ?? $user->role;
+                    $user->save();
                 }
-                // Tambahkan ke daftar member yang berhasil dibuat
-                $createdMembers[] = [
-                    'message' => $message,
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'username' => $user->username,
-                    ],
-                    'member' => [
-                        'id' => $existingMember->id,
-                        'no_member' => $existingMember->no_member,
-                        'fullname' => $existingMember->fullname,
-                    ]
+
+                // Update member dengan data terbaru
+                $member->fill($data);
+                $member->save();
+
+                // Insert/update StudyMember jika ada
+                if (isset($data['university_id'], $data['faculty_id'], $data['program_study_id'])) {
+                    StudyMember::updateOrCreate(
+                        ['member_id' => $member->id],
+                        [
+                            'university_id' => $data['university_id'],
+                            'faculty_id' => $data['faculty_id'],
+                            'program_study_id' => $data['program_study_id'],
+                        ]
+                    );
+                    $member->update(['is_studyng' => true]);
+                }
+
+                $results[] = [
+                    'user' => $user->only(['id', 'username', 'email']),
+                    'member' => $member->only(['id', 'no_member', 'fullname']),
                 ];
             }
 
             DB::commit();
-
             return response()->json([
                 'error' => false,
-                'message' => count($createdMembers) . ' members successfully created!',
-                'data' => $createdMembers
-            ], 201);
+                'message' => 'Import success!',
+                'data' => $results
+            ]);
         } catch (\Exception $e) {
-            DB::rollback();
-
+            DB::rollBack();
             return response()->json([
                 'error' => true,
-                'message' => 'Failed to create members',
+                'message' => 'Failed to create/update members',
                 'details' => $e->getMessage()
             ], 500);
         }
     }
+
 
     public function updateMember(Request $req, $id)
     {

@@ -105,6 +105,8 @@ Route::middleware(['api'])->group(function () {
         Route::delete('/admin/document/{Id}/deleteHome', [DocumentController::class, 'adminDeleteHomePhoto'])->name('adminDeleteHomePhoto');
         
         //member
+        Route::get('/admin/member/export-excel', [MemberController::class, 'exportMember'])->name('exportMember');
+        Route::post('/admin/member/import-excel', [MemberController::class, 'importMemberExcel']);
         Route::get('/admin/memberDetail/{id}', [MemberController::class, 'memberDetail'])->name('memberDetail');
         Route::post('/admin/createMember', [MemberController::class, 'createMember'])->name('createMember');
         Route::post('/admin/updateMember/{id}', [MemberController::class, 'updateMember'])->name('updateMember');
