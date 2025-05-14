@@ -10,12 +10,14 @@ use Illuminate\Http\Request;
 use App\Exports\MembersExport;
 use App\Imports\MembersImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Resources\MembersResource;
 use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class MemberController extends Controller
 {
@@ -226,8 +228,34 @@ class MemberController extends Controller
     public function exportMember(Request $request)
     {
         $filters = $request->only(['angkatan', 'member_type']);
-        return Excel::download(new MembersExport($filters), 'members.xlsx');
-        
+        $validator = Validator::make($filters, [
+            'angkatan' => 'sometimes|array',
+            'angkatan.*' => 'integer',
+            'member_type' => 'sometimes|array',
+            'member_type.*' => 'string'
+        ]);
+
+        // return Excel::download(new MembersExport($filters), 'members.xlsx');
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => true,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        try {
+            return Excel::download(
+                new MembersExport($filters),
+                'members_' . now()->format('Ymd_His') . '.xlsx',
+                \Maatwebsite\Excel\Excel::XLSX
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Export failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function member(Request $request, $id)
@@ -261,6 +289,7 @@ class MemberController extends Controller
 
         $import = new MembersImport();
         Excel::import($import, $request->file('file'));
+        Log::info("File diterima: " . $request->file('file')->getClientOriginalName());
 
         return response()->json([
             'error' => false,
