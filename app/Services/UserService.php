@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
-use App\Models\Admin;
 use App\Models\User;
+use App\Models\Admin;
+use App\Models\Member;
+use App\Models\Document;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use App\Notifications\VerifyEmailNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\VerifyEmailNotification;
 
 class UserService
 {
@@ -101,22 +104,46 @@ class UserService
     public function register(array $data)
     {
         // Create the user
-        $user = User::create([
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'email_verified_at' => null,  // Set to null for verification process
-            'role' => 'member',  // Or set a default role
-        ]);
+        DB::beginTransaction();
+        try {
 
-        // Send email verification
-        //$this->sendVerificationEmail($user);
+            $user = User::create([
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'email_verified_at' => null,  // Set to null for verification process
+                'role' => 'member',  // Or set a default role
+            ]);
 
-        return [
-            'status' => true,
-            'message' => 'Registration successful.',
-            'user' => $user,
-        ];
+            // Send email verification
+            //$this->sendVerificationEmail($user);
+
+            // Auto-create member
+            $member = Member::create([
+                'user_id' => $user->id,
+                'fullname' => $data['username']
+            ]);
+
+            // Auto-create empty document
+            Document::create([
+                'member_id' => $member->id,
+            ]);
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => 'Registration successful!',
+                'user' => $user,
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'status' => false,
+                'message' => 'Registration failed: ' . $e->getMessage(),
+            ];
+        }
     }
 
     public function register_admin(array $data)
@@ -139,7 +166,7 @@ class UserService
         return [
             'status' => true,
             'message' => 'Registration successful.',
-            'user' => $user, 
+            'user' => $user,
             'admin' => $admin
         ];
     }

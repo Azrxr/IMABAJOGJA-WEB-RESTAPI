@@ -60,7 +60,7 @@ class RegisterController extends Controller
 
             return response()->json([
                 'error' => true,
-                'message' => 'Registration failed. Please try again.'
+                'message' => $registerResult ['message']
             ], 400);  // HTTP status 400 Bad Request
         }
         // If the request is from a browser (wants HTML view)
@@ -68,7 +68,7 @@ class RegisterController extends Controller
             return redirect()->route('login')->with('status', $registerResult['message']);
         }
 
-        return back()->withErrors(['error' => 'Registration failed. Please try again.']);
+        return back()->withErrors(['error' => $registerResult ['message']]);
     }
 
     public function Register_admin(Request $req)
