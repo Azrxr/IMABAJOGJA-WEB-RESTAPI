@@ -329,7 +329,7 @@ class MemberController extends Controller
             'members.*.kode_pos' => 'required|string|max:255',
             'members.*.scholl_origin' => 'required|string|max:255',
             'members.*.tahun_lulus' => 'required|integer',
-            'members.*.is_studyng' => 'nullable|boolean',
+            'members.*.is_studyng' => 'sometimes|boolean',
 
             // Optional Study
             'members.*.university_id' => 'nullable|integer|exists:universities,id',

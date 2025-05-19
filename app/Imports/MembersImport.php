@@ -47,7 +47,8 @@ class MembersImport implements ToCollection
                     'kode_pos' => $row[14],
                     'scholl_origin' => $row[15],
                     'tahun_lulus' => $row[16],
-                    'is_studyng' => $row[17],
+                    'is_studyng' => isset($row[17]) ? $row[17] : false,
+
                 ];
 
                 $studyData = [
