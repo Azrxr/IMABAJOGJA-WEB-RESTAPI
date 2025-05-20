@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\auth\LoginController;
+use App\Http\Controllers\Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +15,7 @@ use App\Http\Controllers\auth\LoginController;
 |
 */
 
-Route::permanentRedirect('/', 'welcome');
+Route::get('/', [Controller::class, 'welcome'])->name('welcome');
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', [LoginController::class, 'login'])->name('login');
@@ -23,4 +24,3 @@ Route::group(['middleware' => 'guest'], function () {
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
