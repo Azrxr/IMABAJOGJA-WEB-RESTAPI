@@ -57,6 +57,7 @@ class MemberStudyResource extends JsonResource
                 'facultyId' => $member->faculty ? $member->faculty->id : null,
                 'program_study' => $member->programStudy ? $member->programStudy->name : null,
                 'program_studyId' => $member->programStudy ? $member->programStudy->id : null,
+                'jenjang' => $member->programStudy ? $member->programStudy->jenjang : null,
             ];
             }),
             'documents' => collect($this->documents)->map(function ($document) {

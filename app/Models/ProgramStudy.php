@@ -9,7 +9,7 @@ class ProgramStudy extends Model
     protected $table = 'program_studies';
 
     protected $fillable = [
-        'univerty_id', 'faculty_id', 'name', 'jenjang' 
+        'university_id', 'faculty_id', 'name', 'jenjang', 'kd_program_study'
     ];
 
     public function university()

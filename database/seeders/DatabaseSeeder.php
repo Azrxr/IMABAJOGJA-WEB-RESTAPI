@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             WilayahSeeder::class,
             AdminSeeder::class,
             MemberSeeder::class,
-            PerguruanTinggiSeeder::class,
+            // PerguruanTinggiSeeder::class,
         ]);
     }
 }

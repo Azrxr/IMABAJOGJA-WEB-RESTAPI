@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\auth\LoginController;
 use App\Http\Controllers\StudyPlaneController;
 use App\Http\Controllers\auth\RegisterController;
+use App\Http\Controllers\StudyController;
 use App\Http\Controllers\WilayahController;
 use PhpParser\Node\Expr\PostDec;
 
@@ -29,12 +30,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['api'])->group(function () {
+
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/wilayah', [HomeController::class, 'wilayah'])->name('wilayah');
     Route::get('/province', [WilayahController::class, 'province'])->name('province');
     Route::get('/regency/{id}', [WilayahController::class, 'regency'])->name('regency');
     Route::get('/district/{id}', [WilayahController::class, 'district'])->name('district');
     
+    Route::get('/study/getAll', [StudyController::class, 'index'])->name('getStudy');
+
     Route::get('/university', [StudyPlaneController::class, 'university'])->name('university');
     Route::get('/programStudy/{id}', [StudyPlaneController::class, 'programStudy'])->name('programStudy');
     Route::get('/faculty/{id}', [StudyPlaneController::class, 'faculty'])->name('faculty');
@@ -98,6 +102,7 @@ Route::middleware(['api'])->group(function () {
         Route::get('/admin/study/getPlane/{memberId}', [StudyPlaneController::class, 'adminGetStudyPlane'])->name('adminGetStudyPlans');
 
         Route::get('/admin/study/getStudyPlanAnalysis', [StudyPlaneController::class, 'getStudyPlanAnalysis'])->name('getStudyPlanAnalysis');
+        Route::post('/admin/study/import', [StudyController::class, 'importUniversityStructure'])->name('importUniversityStructure');
         //document
         Route::post('/admin/document/{memberId}/upload/{docId}', [DocumentController::class, 'adminUploadDocument'])->name('adminUpdateDocument');
         Route::delete('/admin/document/{memberId}/delete/{field}', [DocumentController::class, 'adminDeleteDocument'])->name('adminDeleteDocument');
