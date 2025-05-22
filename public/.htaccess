@@ -4,6 +4,8 @@
     </IfModule>
 
     RewriteEngine On
+    # 🔐 Nonaktifkan Directory Listing
+    Options -Indexes
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
