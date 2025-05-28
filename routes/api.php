@@ -2,17 +2,18 @@
 
 use Illuminate\Http\Request;
 use Laravel\Sanctum\Sanctum;
+use PhpParser\Node\Expr\PostDec;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StudyController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\auth\LoginController;
 use App\Http\Controllers\StudyPlaneController;
+use App\Http\Controllers\auth\DeleteController;
 use App\Http\Controllers\auth\RegisterController;
-use App\Http\Controllers\StudyController;
-use App\Http\Controllers\WilayahController;
-use PhpParser\Node\Expr\PostDec;
 
 /*
 |--------------------------------------------------------------------------
@@ -119,3 +120,5 @@ Route::middleware(['api'])->group(function () {
         Route::delete('/admin/deleteMember/{id}', [MemberController::class, 'deleteMember'])->name('deleteMember');
     });
 });
+
+Route::middleware(['auth:sanctum'])->delete('/account/delete', [DeleteController::class, 'destroyAccountApi']);
