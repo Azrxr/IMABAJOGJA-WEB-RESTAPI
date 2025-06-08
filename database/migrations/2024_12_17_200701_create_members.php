@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('full_address')->nullable();
 
             $table->enum('agama', ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Budha', 'Konghucu', 'Lainnya'])->nullable();
-            $table->integer('nisn')->nullable()->comment('opsional');
+            $table->string('nisn')->nullable()->comment('opsional');
             $table->string('tempat')->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->enum('gender', ['Laki-laki', 'Perempuan'])->nullable();
