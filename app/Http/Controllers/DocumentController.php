@@ -50,9 +50,10 @@ class DocumentController extends Controller
             'kk_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'akte_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'skhu_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
-            'ijazah_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
+            'ijazah_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048', //TODO: check if this is needed
             'raport_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'surat_baik_path' => 'sometimes|file|mimes:pdf|max:2048',
+
             'surat_rekom_kades_path' => 'sometimes|file|mimes:pdf|max:2048',
             'surat_keterangan_baik_path' => 'sometimes|file|mimes:pdf|max:2048',
             'surat_penghasilan_ortu_path' => 'sometimes|file|mimes:pdf|max:2048',

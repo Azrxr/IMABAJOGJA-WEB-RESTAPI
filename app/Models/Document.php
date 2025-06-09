@@ -109,6 +109,7 @@ class Document extends Model
                     'akte_legalisir_path',
                     'skhu_legalisir_path',
                     'raport_legalisir_path',
+                    'ijazah_legalisir_path',
                     'surat_baik_path',
                     'surat_rekom_kades_path',
                     'surat_keterangan_baik_path',

@@ -80,6 +80,8 @@ class MemberController extends Controller
             'tahun_lulus' => 'sometimes|integer',
             'angkatan' => 'sometimes|integer',
             'is_studyng' => 'sometimes|boolean',
+            'no_member' => 'sometimes|string|max:255',
+            'member_type' => 'sometimes|string|in:camaba,pengurus,anggota,demissioner,istimewa|max:255',
 
         ]);
         // Ambil data user dan members
@@ -437,6 +439,7 @@ class MemberController extends Controller
             'tahun_lulus' => 'sometimes|integer',
             'angkatan' => 'sometimes|string|max:255',
             'member_type' => 'sometimes|string|in:camaba,pengurus,anggota,demissioner,istimewa|max:255',
+            'no_member' => 'sometimes|string|max:255',
             'is_studyng' => 'sometimes|boolean',
 
         ]);
