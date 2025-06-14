@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Member extends Model
 {
+
+    use Notifiable;
     protected $fillable = [
         'id', 'user_id', 'no_member', 'angkatan', 'fullname', 'phone_number',
         'province_id', 'regency_id', 'district_id', 'full_address', 'agama',

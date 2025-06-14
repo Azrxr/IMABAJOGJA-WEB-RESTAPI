@@ -55,10 +55,13 @@ class MemberController extends Controller
     public function profileUpdate(Request $req)
     {
         // Validasi data dari request
+        $user = User::findOrFail(Auth::id());
+        $member = $user->member;
         $validatedData = $req->validate([
             // Validasi untuk tabel users
             'username' => 'sometimes|string|max:255|unique:users,username,' . Auth::id(),
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . Auth::id(),
+            'no_member' => 'sometimes|string|max:255|unique:members,no_member,' . $member->id,
             'current_password' => 'nullable|string',
             'new_password' => 'nullable|string|min:8|confirmed',
 
@@ -80,12 +83,10 @@ class MemberController extends Controller
             'tahun_lulus' => 'sometimes|integer',
             'angkatan' => 'sometimes|integer',
             'is_studyng' => 'sometimes|boolean',
-            'no_member' => 'sometimes|string|max:255',
             'member_type' => 'sometimes|string|in:camaba,pengurus,anggota,demissioner,istimewa|max:255',
 
         ]);
-        // Ambil data user dan members
-        $user = User::findOrFail(Auth::id());
+        
 
         // Perbarui data pengguna di tabel users
         if (isset($validatedData['username'])) {
@@ -107,7 +108,7 @@ class MemberController extends Controller
         }
 
         $user->save();
-        $member = $user->member;
+        
 
         if (!$member) {
             $member = new Member();
@@ -414,10 +415,15 @@ class MemberController extends Controller
     public function updateMember(Request $req, $id)
     {
         $member = Member::findOrFail($id);
+        $user = User::findOrFail($member->user_id);
+
+       
+
         $validatedData = $req->validate([
             // Validasi untuk tabel users
-            'username' => 'sometimes|string|max:255|unique:users,username,' . $member->user_id,
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $member->user_id,
+            'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'no_member' => 'sometimes|string|max:255|unique:members,no_member,' . $member->id,
             'current_password' => 'nullable|string',
             'new_password' => 'nullable|string|min:8|confirmed',
 
@@ -439,13 +445,9 @@ class MemberController extends Controller
             'tahun_lulus' => 'sometimes|integer',
             'angkatan' => 'sometimes|string|max:255',
             'member_type' => 'sometimes|string|in:camaba,pengurus,anggota,demissioner,istimewa|max:255',
-            'no_member' => 'sometimes|string|max:255',
             'is_studyng' => 'sometimes|boolean',
 
         ]);
-        // Ambil data user dan members
-
-        $user = User::findOrFail($member->user_id);
 
         // Perbarui data pengguna di tabel users
         if (isset($validatedData['username'])) {
