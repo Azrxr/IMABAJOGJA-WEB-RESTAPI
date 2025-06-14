@@ -26,12 +26,14 @@ class DocumentController extends Controller
             ->with('homePhoto')
             ->first();
 
+        
+
         // Hitung kelengkapan dokumen
         $exclude = ['id', 'member_id', 'created_at', 'updated_at'];
         $attributes = $document ? collect($document->getAttributes())->except($exclude) : collect([]);
         $filled = $attributes->filter(fn($val) => !is_null($val))->count();
         $total = $attributes->count();
-        $hasHomePhotos = $document && $document->homePhotos && $document->homePhotos->isNotEmpty();
+        $hasHomePhotos = $document && $document->homePhoto && $document->homePhoto->isNotEmpty();
 
         // Tambahan informasi progress dan status
         $berkas_progress = "$filled / $total";
