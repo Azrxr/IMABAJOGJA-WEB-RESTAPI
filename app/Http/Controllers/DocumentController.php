@@ -26,7 +26,26 @@ class DocumentController extends Controller
             ->with('homePhoto')
             ->first();
 
-        $message = $document ? 'Document found!' : 'Document not found!';
+        // Hitung kelengkapan dokumen
+        $exclude = ['id', 'member_id', 'created_at', 'updated_at'];
+        $attributes = $document ? collect($document->getAttributes())->except($exclude) : collect([]);
+        $filled = $attributes->filter(fn($val) => !is_null($val))->count();
+        $total = $attributes->count();
+        $hasHomePhotos = $document && $document->homePhotos && $document->homePhotos->isNotEmpty();
+
+        // Tambahan informasi progress dan status
+        $berkas_progress = "$filled / $total";
+        $berkas_lengkap = $filled === $total && $hasHomePhotos;
+        $has_home_photos = $hasHomePhotos;
+
+        $message =  $document ? 'Document found!' : 'Document not found!';
+        // Gabungkan ke data document jika ada
+        if ($document) {
+            $document->berkas_progress = $berkas_progress;
+            $document->berkas_lengkap = $berkas_lengkap;
+            $document->has_home_photos = $has_home_photos;
+        }
+
         if ($request->wantsJson()) {
             return ApiResponse::jsonResponse(
                 false,
@@ -50,7 +69,7 @@ class DocumentController extends Controller
             'kk_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'akte_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'skhu_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
-            'ijazah_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048', //TODO: check if this is needed
+            'ijazah_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'raport_legalisir_path' => 'sometimes|file|mimes:pdf|max:2048',
             'surat_baik_path' => 'sometimes|file|mimes:pdf|max:2048',
 
@@ -239,7 +258,7 @@ class DocumentController extends Controller
     {
         $member = Member::findOrFail($memberId);
         $document = $member->documents()->where('id', $docId)->firstOrNew();
-        
+
         $validateDocument = $request->validate([
             'ktp_path' => 'sometimes|file|mimes:pdf|max:2048',
             'kk_path' => 'sometimes|file|mimes:pdf|max:2048',
